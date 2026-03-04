@@ -32,7 +32,7 @@ const FIELDS: Array<{
   { key: 'beginningBalance', label: 'Saldo inicial' },
   { key: 'interest', label: 'Interes' },
   { key: 'principalPayment', label: 'Capital' },
-  { key: 'insurance', label: 'Seguro' },
+  { key: 'insurance', label: 'Seguro total' },
   { key: 'totalPayment', label: 'Pago total' },
   { key: 'endingBalance', label: 'Saldo final' },
 ]
@@ -108,10 +108,10 @@ export function ExcelCheckPanel({ schedule }: ExcelCheckPanelProps) {
 
   return (
     <section className="panel section">
-      <h3 style={{ marginTop: 0 }}>Chequeo contra Excel (tolerancia ±1 COP)</h3>
+      <h3 style={{ marginTop: 0 }}>Chequeo contra Excel (tolerancia +/-1 COP)</h3>
       <p style={{ color: '#486581' }}>
-        Pega aqui el CSV de Excel con columnas en este orden: Mes, Saldo inicial,
-        Interes, Capital, Seguro, Pago total, Saldo final.
+        Pega el CSV de Excel con columnas: Mes, Saldo inicial, Interes, Capital,
+        Seguro, Pago total, Saldo final. Si hay columnas extra, se ignoran.
       </p>
 
       <textarea
@@ -144,7 +144,10 @@ export function ExcelCheckPanel({ schedule }: ExcelCheckPanelProps) {
             <Metric label="Filas Excel" value={String(result.parsedLength)} />
             <Metric label="Filas comparadas" value={String(result.comparedRows)} />
             <Metric label="Validaciones OK" value={String(result.passedChecks)} />
-            <Metric label="Validaciones fuera de tolerancia" value={String(result.failedChecks)} />
+            <Metric
+              label="Fuera de tolerancia"
+              value={String(result.failedChecks)}
+            />
             <Metric label="Delta maximo" value={formatCop(result.maxDelta)} />
           </div>
 
@@ -179,8 +182,15 @@ export function ExcelCheckPanel({ schedule }: ExcelCheckPanelProps) {
               </table>
             </div>
           ) : (
-            <div className="alert" style={{ color: '#065f46', borderColor: '#a7f3d0', background: '#ecfdf5' }}>
-              Todo dentro de tolerancia ±1 COP.
+            <div
+              className="alert"
+              style={{
+                color: '#065f46',
+                borderColor: '#a7f3d0',
+                background: '#ecfdf5',
+              }}
+            >
+              Todo dentro de tolerancia +/-1 COP.
             </div>
           )}
         </div>
@@ -256,6 +266,9 @@ function parseCsvRows(text: string): AmortizationRow[] {
       beginningBalance,
       interest,
       principalPayment,
+      extraPayment: 0,
+      baseInsurance: insurance,
+      lifeInsurance: 0,
       insurance,
       totalPayment,
       endingBalance,

@@ -4,7 +4,10 @@ export interface LoanInput {
   termMonths: number
   bankMonthlyPayment: number
   monthlyInsurance?: number
+  monthlyLifeInsuranceRate?: number
   bankPaymentIncludesInsurance: boolean
+  constantExtraPayment?: ConstantExtraPayment
+  extraordinaryExtraPayments?: ExtraPayment[]
 }
 
 export interface AmortizationRow {
@@ -12,6 +15,9 @@ export interface AmortizationRow {
   beginningBalance: number
   interest: number
   principalPayment: number
+  extraPayment: number
+  baseInsurance: number
+  lifeInsurance: number
   insurance: number
   totalPayment: number
   endingBalance: number
@@ -27,9 +33,18 @@ export interface LoanProjection {
   bankInstallmentNormalized: number
   installmentDifference: number
   installmentDifferencePct: number
+  originalTermMonths: number
+  resultingTermMonths: number
+  monthsReduced: number
+  interestSavingsFromPrepayments: number
 }
 
 export interface ExtraPayment {
   month: number
   amount: number
+}
+
+export interface ConstantExtraPayment {
+  amount: number
+  everyNMonths: number
 }

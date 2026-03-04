@@ -9,6 +9,8 @@ export interface LoanSummary {
   principalPct: number
   insurancePct: number
   alertDifferenceAbove1Pct: boolean
+  monthsReduced: number
+  interestSavingsFromPrepayments: number
 }
 
 export function buildLoanSummary(projection: LoanProjection): LoanSummary {
@@ -36,5 +38,7 @@ export function buildLoanSummary(projection: LoanProjection): LoanSummary {
     principalPct,
     insurancePct,
     alertDifferenceAbove1Pct: Math.abs(projection.installmentDifferencePct) > 1,
+    monthsReduced: projection.monthsReduced,
+    interestSavingsFromPrepayments: projection.interestSavingsFromPrepayments,
   }
 }

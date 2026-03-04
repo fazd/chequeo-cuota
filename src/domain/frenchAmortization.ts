@@ -1,4 +1,4 @@
-import type { AmortizationRow } from './loan.types'
+import type { AmortizationRow, ConstantExtraPayment, ExtraPayment } from './loan.types'
 
 export function calculateFrenchInstallment(
   principal: number,
@@ -28,7 +28,10 @@ export interface BuildScheduleParams {
   monthlyRate: number
   termMonths: number
   installmentExInsurance: number
-  monthlyInsurance: number
+  monthlyBaseInsurance: number
+  monthlyLifeInsuranceRate: number
+  constantExtraPayment?: ConstantExtraPayment
+  extraordinaryExtraPayments?: ExtraPayment[]
 }
 
 export function buildFrenchAmortizationSchedule(
@@ -39,38 +42,65 @@ export function buildFrenchAmortizationSchedule(
     monthlyRate,
     termMonths,
     installmentExInsurance,
-    monthlyInsurance,
+    monthlyBaseInsurance,
+    monthlyLifeInsuranceRate,
+    constantExtraPayment,
+    extraordinaryExtraPayments = [],
   } = params
 
-  if (monthlyInsurance < 0) {
-    throw new Error('monthlyInsurance must be >= 0')
+  if (monthlyBaseInsurance < 0) {
+    throw new Error('monthlyBaseInsurance must be >= 0')
+  }
+  if (monthlyLifeInsuranceRate < 0) {
+    throw new Error('monthlyLifeInsuranceRate must be >= 0')
   }
 
   const rows: AmortizationRow[] = []
+  const extraPaymentMap = buildExtraPaymentMap(
+    termMonths,
+    constantExtraPayment,
+    extraordinaryExtraPayments,
+  )
   let balance = principal
 
-  for (let month = 1; month <= termMonths; month += 1) {
+  for (let month = 1; month <= termMonths && balance > 0.000001; month += 1) {
     const beginningBalance = balance
+    const lifeInsurance = beginningBalance * monthlyLifeInsuranceRate
+    const insurance = monthlyBaseInsurance + lifeInsurance
     const interest = beginningBalance * monthlyRate
+    const plannedExtraPayment = extraPaymentMap.get(month) ?? 0
 
-    let principalPayment = installmentExInsurance - interest
-    let endingBalance = beginningBalance - principalPayment
+    let principalWithoutExtra = installmentExInsurance - interest
+    if (principalWithoutExtra <= 0) {
+      throw new Error(
+        'installmentExInsurance must be greater than monthly interest to amortize principal',
+      )
+    }
+    if (principalWithoutExtra > beginningBalance) {
+      principalWithoutExtra = beginningBalance
+    }
 
-    const isLastMonth = month === termMonths
-    if (isLastMonth || endingBalance < 0.01) {
-      principalPayment = beginningBalance
+    let endingBalance = beginningBalance - principalWithoutExtra
+    let extraPayment = Math.min(plannedExtraPayment, Math.max(0, endingBalance))
+    endingBalance -= extraPayment
+    if (endingBalance < 0.01) {
+      extraPayment += endingBalance
       endingBalance = 0
     }
 
-    const paymentExInsurance = principalPayment + interest
-    const totalPayment = paymentExInsurance + monthlyInsurance
+    const principalPayment = principalWithoutExtra + extraPayment
+    const paymentExInsurance = interest + principalPayment
+    const totalPayment = paymentExInsurance + insurance
 
     rows.push({
       month,
       beginningBalance,
       interest,
       principalPayment,
-      insurance: monthlyInsurance,
+      extraPayment,
+      baseInsurance: monthlyBaseInsurance,
+      lifeInsurance,
+      insurance,
       totalPayment,
       endingBalance,
     })
@@ -79,4 +109,34 @@ export function buildFrenchAmortizationSchedule(
   }
 
   return rows
+}
+
+function buildExtraPaymentMap(
+  termMonths: number,
+  constantExtraPayment?: ConstantExtraPayment,
+  extraordinaryExtraPayments: ExtraPayment[] = [],
+): Map<number, number> {
+  const map = new Map<number, number>()
+
+  if (
+    constantExtraPayment &&
+    constantExtraPayment.amount > 0 &&
+    constantExtraPayment.everyNMonths > 0
+  ) {
+    for (
+      let month = constantExtraPayment.everyNMonths;
+      month <= termMonths;
+      month += constantExtraPayment.everyNMonths
+    ) {
+      map.set(month, (map.get(month) ?? 0) + constantExtraPayment.amount)
+    }
+  }
+
+  extraordinaryExtraPayments
+    .filter((item) => item.month >= 1 && item.month <= termMonths && item.amount > 0)
+    .forEach((item) => {
+      map.set(item.month, (map.get(item.month) ?? 0) + item.amount)
+    })
+
+  return map
 }

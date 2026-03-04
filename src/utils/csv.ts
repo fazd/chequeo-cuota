@@ -10,6 +10,9 @@ export function scheduleToCsv(rows: AmortizationRow[]): string {
     'Seguro',
     'Pago total',
     'Saldo final',
+    'Abono extra',
+    'Seguro base',
+    'Seguro vida',
   ]
 
   const body = rows.map((row) => [
@@ -20,6 +23,9 @@ export function scheduleToCsv(rows: AmortizationRow[]): string {
     roundTo(row.insurance, 2).toFixed(2),
     roundTo(row.totalPayment, 2).toFixed(2),
     roundTo(row.endingBalance, 2).toFixed(2),
+    roundTo(row.extraPayment, 2).toFixed(2),
+    roundTo(row.baseInsurance, 2).toFixed(2),
+    roundTo(row.lifeInsurance, 2).toFixed(2),
   ])
 
   return [header, ...body].map((line) => line.join(',')).join('\n')

@@ -10,20 +10,20 @@ describe('buildLoanSummary', () => {
       termMonths: 240,
       bankMonthlyPayment: 2_500_000,
       monthlyInsurance: 100_000,
+      monthlyLifeInsuranceRate: 0.0005,
       bankPaymentIncludesInsurance: false,
+      constantExtraPayment: { amount: 200_000, everyNMonths: 12 },
     })
 
     const summary = buildLoanSummary(projection)
 
-    expect(summary.totalPaid).toBeCloseTo(
-      projection.theoreticalInstallmentInclInsurance * 239 +
-        projection.schedule[239].totalPayment,
-      2,
-    )
+    expect(summary.totalPaid).toBeCloseTo(projection.totalPaid, 2)
     expect(summary.interestPct + summary.principalPct + summary.insurancePct).toBeCloseTo(
       100,
       8,
     )
     expect(summary.alertDifferenceAbove1Pct).toBe(true)
+    expect(summary.monthsReduced).toBeGreaterThan(0)
+    expect(summary.interestSavingsFromPrepayments).toBeGreaterThan(0)
   })
 })

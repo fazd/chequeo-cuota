@@ -48,6 +48,57 @@
   font-size: 0.95rem;
 }
 
+.money-input-wrap {
+  position: relative;
+}
+
+.money-prefix {
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #486581;
+  font-weight: 600;
+}
+
+.money-input-wrap input {
+  padding-left: 1.8rem;
+}
+
+.inline-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.mini-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  border: 1px solid #bcccdc;
+  border-radius: 8px;
+  background: #fff;
+  color: #334e68;
+  font-weight: 600;
+  height: 38px;
+  padding: 0 0.8rem;
+  cursor: pointer;
+}
+
+.btn-danger {
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #9b1c1c;
+  font-weight: 600;
+  height: 38px;
+  padding: 0 0.8rem;
+  cursor: pointer;
+}
+
 .field-error {
   color: #b42318;
   margin-top: 0.7rem;

@@ -33,6 +33,14 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
         <Metric label="Total capital" value={formatCop(summary.totalPrincipal)} />
         <Metric label="Total seguros" value={formatCop(summary.totalInsurance)} />
         <Metric label="Total pagado" value={formatCop(summary.totalPaid)} />
+        <Metric
+          label="Ahorro de intereses (abonos)"
+          value={formatCop(summary.interestSavingsFromPrepayments)}
+        />
+        <Metric
+          label="Reduccion de plazo"
+          value={formatMonths(summary.monthsReduced)}
+        />
         <Metric label="% interes" value={formatPercent(summary.interestPct)} />
         <Metric label="% capital" value={formatPercent(summary.principalPct)} />
         <Metric label="% seguros" value={formatPercent(summary.insurancePct)} />
@@ -46,6 +54,15 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
       ) : null}
     </section>
   )
+}
+
+function formatMonths(months: number): string {
+  const years = Math.floor(months / 12)
+  const remainingMonths = months % 12
+  if (years === 0) {
+    return `${months} meses`
+  }
+  return `${years} anos ${remainingMonths} meses`
 }
 
 interface MetricProps {

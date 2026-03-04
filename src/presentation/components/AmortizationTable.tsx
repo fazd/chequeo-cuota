@@ -16,7 +16,10 @@ export function AmortizationTable({ rows }: AmortizationTableProps) {
               <th>Saldo inicial</th>
               <th>Interes</th>
               <th>Capital</th>
-              <th>Seguro</th>
+              <th>Abono extra</th>
+              <th>Seguro base</th>
+              <th>Seguro vida</th>
+              <th>Seguro total</th>
               <th>Pago total</th>
               <th>Saldo final</th>
             </tr>
@@ -28,6 +31,9 @@ export function AmortizationTable({ rows }: AmortizationTableProps) {
                 <td>{formatCop(row.beginningBalance)}</td>
                 <td>{formatCop(row.interest)}</td>
                 <td>{formatCop(row.principalPayment)}</td>
+                <td>{formatCop(row.extraPayment)}</td>
+                <td>{formatCop(row.baseInsurance)}</td>
+                <td>{formatCop(row.lifeInsurance)}</td>
                 <td>{formatCop(row.insurance)}</td>
                 <td>{formatCop(row.totalPayment)}</td>
                 <td>{formatCop(row.endingBalance)}</td>
