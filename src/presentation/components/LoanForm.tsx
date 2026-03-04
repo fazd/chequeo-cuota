@@ -1,7 +1,7 @@
-import type { FormEvent, ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import type { ExtraPayment, LoanInput } from '../../domain/loan.types'
-
+import { track } from '@vercel/analytics/react'
 interface LoanFormProps {
   onCalculate: (input: LoanInput) => void
 }
@@ -99,7 +99,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
     }))
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = (event) => {
     event.preventDefault()
 
     const principal = parseMoneyInputValue(form.principal)
@@ -151,6 +151,12 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
     }
 
     setError(null)
+
+    track('calculo_realizado', {
+      principal,
+      termMonths
+    })
+
     onCalculate({
       principal,
       annualEffectiveRate,
@@ -813,4 +819,6 @@ function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {
   const monthlyNominalDue = rateDecimal / 12
   return Math.pow(1 + monthlyNominalDue, 12) - 1
 }
+
+
 
