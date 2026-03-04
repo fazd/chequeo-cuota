@@ -19,7 +19,7 @@ export function Home() {
           <div className="hero-icon" aria-hidden>
             C
           </div>
-          <h1 className="title">Chequeo de Credito Hipotecario</h1>
+          <h1 className="title">Mis finanzas claras</h1>
         </div>
 
         <p className="subtitle">
