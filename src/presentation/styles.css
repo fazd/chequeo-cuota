@@ -1,0 +1,157 @@
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: #486581;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #d9e2ec;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(16, 42, 67, 0.05);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.8rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: #334e68;
+}
+
+.field input,
+.field select {
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #bcccdc;
+  padding: 0 0.6rem;
+  font-size: 0.95rem;
+}
+
+.field-error {
+  color: #b42318;
+  margin-top: 0.7rem;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: #0b5ed7;
+  color: #fff;
+  font-weight: 600;
+  height: 42px;
+  padding: 0 1rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #094fb5;
+}
+
+.section {
+  margin-top: 1rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.7rem;
+}
+
+.card {
+  border: 1px solid #d9e2ec;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #f8fbff;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #627d98;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.card p {
+  margin: 0.35rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.alert {
+  border: 1px solid #fecdca;
+  background: #fff5f2;
+  color: #912018;
+  border-radius: 8px;
+  padding: 0.7rem;
+  margin-top: 0.7rem;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 980px) {
+  .chart-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.table-wrap {
+  max-height: 450px;
+  overflow: auto;
+  border: 1px solid #d9e2ec;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+th,
+td {
+  padding: 0.6rem;
+  border-bottom: 1px solid #e4e7eb;
+  text-align: right;
+  font-size: 0.88rem;
+}
+
+th:first-child,
+td:first-child {
+  text-align: center;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #f0f4f8;
+  color: #334e68;
+  z-index: 1;
+}
