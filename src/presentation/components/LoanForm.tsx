@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import type { ExtraPayment, LoanInput } from '../../domain/loan.types'
-import { track } from '@vercel/analytics/react'
+import { trackCalculoRealizado } from '../../application/analytics/events'
 interface LoanFormProps {
   onCalculate: (input: LoanInput) => void
 }
@@ -151,11 +151,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
     }
 
     setError(null)
-
-    track('calculo_realizado', {
-      principal,
-      termMonths
-    })
+    trackCalculoRealizado()
 
     onCalculate({
       principal,
@@ -819,6 +815,9 @@ function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {
   const monthlyNominalDue = rateDecimal / 12
   return Math.pow(1 + monthlyNominalDue, 12) - 1
 }
+
+
+
 
 
 

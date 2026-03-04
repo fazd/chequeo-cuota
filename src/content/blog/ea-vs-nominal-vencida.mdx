@@ -1,0 +1,28 @@
+export const frontmatter = {
+  title: 'EA vs nominal vencida: diferencias clave',
+  date: '2026-03-03',
+  excerpt: 'Aprende cuando usar tasa efectiva anual y cuando usar tasa nominal vencida.',
+  tags: ['tasas', 'ea', 'nominal-vencida'],
+}
+
+# EA vs nominal vencida
+
+Si tu banco te entrega tasa **EA**, debes convertirla a tasa mensual con:
+
+$$
+i_m = (1 + EA)^{1/12} - 1
+$$
+
+Si te entrega tasa **nominal vencida anual**, una aproximacion usada en este proyecto es:
+
+$$
+i_m = \frac{j}{12}
+$$
+
+luego se obtiene la EA equivalente:
+
+$$
+EA = (1 + i_m)^{12} - 1
+$$
+
+Usar la tasa correcta evita errores importantes en la cuota teorica.

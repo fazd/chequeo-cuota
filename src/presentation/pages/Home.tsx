@@ -1,74 +1,100 @@
-import { useMemo, useState } from 'react'
-import { buildLoanSummary } from '../../application/loanSummary'
-import { calculateProjection } from '../../application/calculateProjection'
-import type { LoanInput, LoanProjection } from '../../domain/loan.types'
-import { formatCop } from '../../utils/currency'
-import { AmortizationTable } from '../components/AmortizationTable'
-import { Charts } from '../components/Charts'
-import { ExcelCheckPanel } from '../components/ExcelCheckPanel'
-import { ExportCSVButton } from '../components/ExportCSVButton'
-import { LoanForm } from '../components/LoanForm'
-import { SummaryCards } from '../components/SummaryCards'
-import '../styles.css'
+import { Link } from 'react-router-dom'
+import { calculatorsRegistry } from '../../domain/calculators/registry'
+import { SeoHead } from '../seo/SeoHead'
+import { seoMetaByPath } from '../seo/meta'
 
 export function Home() {
-  const [projection, setProjection] = useState<LoanProjection | null>(null)
-
-  function handleCalculate(input: LoanInput) {
-    setProjection(calculateProjection(input))
-  }
-
-  const summary = useMemo(
-    () => (projection ? buildLoanSummary(projection) : null),
-    [projection],
+  const upcomingCalculators = calculatorsRegistry.filter(
+    (calculator) => !calculator.enabled,
   )
-
-  const showSavingsSummary =
-    !!projection &&
-    (projection.monthsReduced > 0 || projection.interestSavingsFromPrepayments > 0)
+  const activeCalculators = calculatorsRegistry.filter(
+    (calculator) => calculator.enabled,
+  )
 
   return (
-    <main className="app-shell app-surface">
-      <div className="hero">
-        <div className="hero-icon" aria-hidden>
-          C
+    <>
+      <SeoHead meta={seoMetaByPath.home} />
+      <section className="app-shell app-surface">
+        <div className="hero hero-landing">
+          <div className="hero-icon" aria-hidden>
+            C
+          </div>
+          <h1 className="title">Chequeo de Credito Hipotecario</h1>
         </div>
-        <h1 className="title">Chequeo de Credito Hipotecario</h1>
-      </div>
-      <p className="subtitle">
-        Analiza y optimiza tu prestamo. Verifica si tu cuota bajo sistema
-        frances coincide con la proyeccion teorica.
-      </p>
 
-      <LoanForm onCalculate={handleCalculate} />
+        <p className="subtitle">
+          Plataforma educativa para entender mejor tu credito de vivienda,
+          tasas, amortizacion y estrategias de pago.
+        </p>
 
-      {projection && summary ? (
-        <>
-          <SummaryCards projection={projection} summary={summary} />
-          {showSavingsSummary ? (
-            <p className="savings-summary">
-              Gracias a los aportes adicionales, ahorras {formatCop(summary.interestSavingsFromPrepayments)}
-              {' '}en intereses y reduces el plazo en {formatMonths(summary.monthsReduced)}.
-            </p>
-          ) : null}
-          <Charts schedule={projection.schedule} baselineSchedule={projection.baselineSchedule} />
-          <AmortizationTable rows={projection.schedule} />
-          <ExcelCheckPanel schedule={projection.schedule} />
-          <ExportCSVButton schedule={projection.schedule} />
-        </>
-      ) : null}
-    </main>
+        <section className="landing-block">
+          <h2 className="landing-title">Como te ayudamos</h2>
+          <p>
+            Mis Finanzas Claras te permite entender conceptos clave y tomar
+            decisiones con mayor claridad antes de hablar con tu banco.
+          </p>
+        </section>
+
+        <section className="landing-block">
+          <h2 className="landing-title">Prueba</h2>
+          <div className="upcoming-grid upcoming-grid-compact">
+            {activeCalculators
+              .filter((calculator) => calculator.id === 'hipotecario')
+              .map((calculator) => (
+                <Link
+                  key={calculator.id}
+                  to="/amortizaci�n-credito-vivienda"
+                  className="upcoming-card-link"
+                >
+                  <article className="upcoming-card upcoming-card-active">
+                    <h3>Amortizacion de credito de vivienda</h3>
+                    <p>{calculator.description}</p>
+                    <span>Ir a calculadora</span>
+                  </article>
+                </Link>
+              ))}
+          </div>
+        </section>
+
+        <section className="landing-block">
+          <h2 className="landing-title">Proximamente</h2>
+          <div className="upcoming-grid">
+            {upcomingCalculators.map((calculator) => (
+              <article key={calculator.id} className="upcoming-card" aria-disabled>
+                <h3>{calculator.name}</h3>
+                <p>{calculator.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="landing-block">
+          <h2 className="landing-title">FAQ</h2>
+          <div className="faq-list">
+            <article>
+              <h3>La herramienta guarda mis datos?</h3>
+              <p>
+                No. Todo se calcula en tu navegador y no se almacena informacion
+                financiera personal.
+              </p>
+            </article>
+            <article>
+              <h3>Por que puede diferir del banco?</h3>
+              <p>
+                Puede haber diferencias por redondeos, politicas internas del banco
+                o seguros no incluidos.
+              </p>
+            </article>
+            <article>
+              <h3>Esto reemplaza asesoria financiera?</h3>
+              <p>
+                No. Es una herramienta educativa para mejorar comprension y
+                comparacion de escenarios.
+              </p>
+            </article>
+          </div>
+        </section>
+      </section>
+    </>
   )
 }
-
-function formatMonths(months: number): string {
-  const years = Math.floor(months / 12)
-  const remainingMonths = months % 12
-
-  if (years === 0) {
-    return `${months} meses`
-  }
-
-  return `${years} años y ${remainingMonths} meses`
-}
-

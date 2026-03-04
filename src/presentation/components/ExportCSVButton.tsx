@@ -1,4 +1,5 @@
 import type { AmortizationRow } from '../../domain/loan.types'
+import { trackCsvExportado } from '../../application/analytics/events'
 import { scheduleToCsv } from '../../utils/csv'
 
 interface ExportCSVButtonProps {
@@ -17,6 +18,7 @@ export function ExportCSVButton({ schedule }: ExportCSVButtonProps) {
     anchor.click()
 
     URL.revokeObjectURL(url)
+    trackCsvExportado()
   }
 
   return (
@@ -25,3 +27,4 @@ export function ExportCSVButton({ schedule }: ExportCSVButtonProps) {
     </button>
   )
 }
+

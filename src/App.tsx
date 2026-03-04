@@ -1,7 +1,7 @@
-import { Home } from './presentation/pages/Home'
+import { AppRouter } from './app/router/AppRouter'
 
 function App() {
-  return <Home />
+  return <AppRouter />
 }
 
 export default App

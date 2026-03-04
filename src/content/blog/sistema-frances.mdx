@@ -1,0 +1,28 @@
+export const frontmatter = {
+  title: 'Sistema frances: como se calcula tu cuota',
+  date: '2026-03-04',
+  excerpt: 'Entiende la cuota fija del sistema frances y por que el interes es mayor al inicio.',
+  tags: ['hipoteca', 'sistema-frances'],
+}
+
+# Sistema frances: como se calcula tu cuota
+
+En el sistema frances, la **cuota financiera** es constante en el tiempo,
+pero su composicion cambia:
+
+- Al inicio pagas mas interes.
+- Con el tiempo pagas mas capital.
+
+La cuota sin seguros se estima como:
+
+$$
+C = P \cdot \frac{i(1+i)^n}{(1+i)^n-1}
+$$
+
+Donde:
+
+- $P$: saldo inicial.
+- $i$: tasa mensual equivalente.
+- $n$: numero de meses.
+
+Al validar con tu banco, recuerda considerar seguros y politicas de redondeo.

@@ -1,114 +1,135 @@
-﻿# AGENTS.md - Decisiones de Arquitectura
+# AGENTS.md - Decisiones de Arquitectura
 
 ## Objetivo del documento
-Este archivo resume las decisiones arquitectónicas vigentes del proyecto `chequeo-cuota` para guiar trabajo futuro de agentes y desarrolladores.
+Este archivo resume las decisiones arquitectonicas vigentes del proyecto `chequeo-cuota` para guiar trabajo futuro de agentes y desarrolladores.
 
-## 1) Arquitectura en capas (desacoplada)
-Se adopta una arquitectura por capas con separación estricta de responsabilidades:
+## 1) Vision de producto y alcance
+El proyecto evoluciona de una calculadora unica a una plataforma educativa financiera llamada **Mis Finanzas Claras**.
+
+Principios vigentes:
+- 100% frontend.
+- Stateless.
+- Sin autenticacion.
+- Sin almacenamiento de datos financieros del usuario.
+
+## 2) Arquitectura en capas (desacoplada)
+Se mantiene separacion estricta de responsabilidades:
 
 - `domain/`: reglas financieras puras y tipos del dominio.
-- `application/`: orquestación de casos de uso y agregados de negocio.
-- `presentation/`: UI React (formularios, vistas, componentes).
-- `utils/`: utilidades transversales (formato, redondeo, CSV).
+- `application/`: casos de uso, agregados, analytics tipado y resolucion de contenido.
+- `presentation/`: UI React, layout, paginas y componentes.
+- `utils/`: utilidades transversales.
 
 Reglas:
 - `domain` NO importa React.
 - `application` NO importa React.
-- `presentation` puede importar `application`.
+- `presentation` puede importar `application` y `domain`.
 
-## 2) Motor financiero como núcleo de negocio
-El cálculo hipotecario se modela como núcleo estable y reutilizable:
+## 3) Navegacion y layout global
+Se adopta React Router con rutas canonicas:
 
-- Conversión de tasa: EA -> mensual equivalente.
-- Sistema francés (cuota fija) como único sistema del MVP.
-- Generación de tabla de amortización mes a mes.
-- Ajuste de última cuota para cierre de saldo.
+- `/`
+- `/como-funciona`
+- `/blog`
+- `/blog/:slug`
+- `/sobre`
+- `/privacidad`
+- `/terminos`
+- `*` (404)
 
-Decisión de precisión:
-- No redondear internamente en cálculos.
-- Redondear solo al presentar/exportar.
+Toda pagina debe vivir dentro de un layout unico:
+- `Navbar` sticky responsive.
+- `Main` con contenido por ruta.
+- `Footer` institucional.
 
-## 3) Contratos del dominio (tipos)
-`LoanInput` concentra entradas funcionales:
-- capital, tasa EA, plazo, cuota banco.
-- seguro fijo mensual opcional.
-- seguro de vida mensual (% sobre saldo) opcional.
-- indicador de si cuota banco incluye seguros.
-- abonos constantes opcionales.
-- abonos extraordinarios opcionales.
+## 4) Motor financiero como nucleo de negocio
+El calculo hipotecario bajo sistema frances permanece como nucleo estable:
 
-`AmortizationRow` desglosa por mes:
-- saldo inicial/final, interés, capital, abono extra,
-- seguro base, seguro vida, seguro total, pago total.
+- Conversion de tasa EA a mensual.
+- Simulacion mes a mes.
+- Cierre de saldo en ultima cuota.
+- Comparacion entre escenario base y escenario con aportes.
 
-`LoanProjection` agrega salida operativa:
-- cronograma, totales, comparación con cuota banco,
-- reducción de plazo por abonos,
-- ahorro de intereses por abonos.
+Precision:
+- No redondear internamente para calculo.
+- Redondear solo para presentacion y exportacion.
 
-## 4) Estrategia de abonos (MVP)
-Se implementa una única estrategia activa:
-- **Reducir capital y mantener cuota** (reduce plazo).
+## 5) Contratos de dominio
+`LoanInput` concentra entradas funcionales.
+`AmortizationRow` describe detalle mensual.
+`LoanProjection` incluye:
+- `schedule` (escenario actual).
+- `baselineSchedule` (sin aportes).
+- metricas agregadas de comparacion.
 
-Tipos de abono soportados:
-- Constante: monto cada N meses.
-- Extraordinario: lista de (mes, monto).
+## 6) Estrategia de aportes (estado actual)
+Estrategia activa:
+- Reducir capital y tiempo manteniendo cuota.
 
-Comportamiento:
-- Ambos tipos pueden coexistir.
-- Se aplica contra capital del mes.
-- Si excede saldo restante, se recorta al saldo pendiente.
+Tipos soportados:
+- Aporte periodico.
+- Aporte extraordinario por mes.
 
-## 5) Seguros
-Seguros modelados como componentes independientes:
+## 7) Blog dinamico con MDX
+El blog se construye desde archivos en `src/content/blog/`:
 
-- Seguro fijo mensual (`monthlyInsurance`).
-- Seguro variable de vida (`monthlyLifeInsuranceRate`), calculado cada mes sobre saldo inicial del período.
+- Cada `.mdx` representa un articulo.
+- Slug normalizado en minusculas con guiones.
+- Frontmatter requerido: `title`, `date`, `excerpt`.
 
-En comparación con cuota banco:
-- si la cuota banco “incluye seguros”, se normaliza restando seguros estimados para comparar contra cuota financiera teórica.
+Contratos:
+- `BlogFrontmatter`.
+- `BlogPostMeta`.
 
-## 6) Cálculo de impacto por aportes
-Se comparan dos escenarios para métricas de impacto:
+Funciones base:
+- `getAllBlogPosts()`.
+- `getBlogPostBySlug(slug)`.
 
-- Escenario base: sin abonos.
-- Escenario con abonos.
+Regla:
+- Slug invalido o inexistente retorna 404 de contenido.
 
-Métricas resultantes:
-- `monthsReduced`.
-- `interestSavingsFromPrepayments`.
+## 8) SEO tecnico obligatorio
+Baseline SEO por pagina:
+- `title`.
+- `description`.
+- Open Graph.
+- `canonical`.
 
-## 7) UI y experiencia
-Decisiones de presentación:
+Archivos tecnicos obligatorios en `public/`:
+- `robots.txt`.
+- `sitemap.xml`.
 
-- Secciones por tarjetas: información básica, seguros, estrategia, aportes.
-- Inputs monetarios con prefijo `$`.
-- Diseño responsive mobile-first.
-- Tabla completa + gráficos + exportación CSV.
+## 9) Observabilidad y privacidad
+Se usa `@vercel/analytics` con eventos tipados y sin PII:
 
-## 8) Exportación y validación
-- Exportación CSV desde cronograma calculado.
-- Panel de chequeo contra Excel con tolerancia +/- 1 COP.
+Eventos permitidos:
+- `calculo_realizado`.
+- `csv_exportado`.
+- `visita_blog`.
 
-## 9) Pruebas y calidad
-Se mantienen pruebas unitarias de dominio/aplicación para:
+Regla:
+- No enviar montos, tasas ni informacion personal en payloads.
 
-- conversión de tasas,
-- cuota y amortización,
-- comparación de cuota,
-- resumen y métricas,
-- impacto de abonos.
+## 10) Extensibilidad para nuevas calculadoras
+Se establece registro de modulos en `src/domain/calculators/`.
 
-Regla de aceptación técnica:
-- cualquier cambio de negocio debe venir acompañado de actualización de pruebas.
+Cada calculadora define:
+- id.
+- nombre.
+- descripcion.
+- estado habilitada/deshabilitada.
 
-## 10) Extensibilidad prevista
-La arquitectura queda preparada para:
+Objetivo:
+- Activar nuevas calculadoras sin reescribir routing, layout o SEO.
 
-- nuevas estrategias de pago (p. ej. reducir cuota manteniendo plazo),
-- más productos de crédito,
-- persistencia/backend,
-- comparación de escenarios avanzada.
+## 11) Performance
+Requisitos base:
+- Lazy load de rutas de blog.
+- Lazy load de graficas.
+- Minimizar impacto en bundle inicial.
 
-Principio guía:
-- extender por nuevos casos de uso y adaptadores, evitando reescribir el motor financiero central.
+## 12) Calidad y pruebas
+Se mantienen pruebas unitarias de dominio/aplicacion como puerta minima.
+
+Regla de aceptacion tecnica:
+- Cualquier cambio de negocio exige actualizar o agregar pruebas.

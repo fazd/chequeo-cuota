@@ -1,13 +1,12 @@
 import { roundTo } from './rounding'
 
-const copFormatter = new Intl.NumberFormat('es-CO', {
-  style: 'currency',
-  currency: 'COP',
+const copNumberFormatter = new Intl.NumberFormat('es-CO', {
+  minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 })
 
 export function formatCop(value: number): string {
-  return copFormatter.format(roundTo(value, 2))
+  return `$ ${copNumberFormatter.format(roundTo(value, 2))}`
 }
 
 export function formatPercent(value: number): string {
