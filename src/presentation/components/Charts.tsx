@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import type { AmortizationRow } from '../../domain/loan.types'
+import { formatCop } from '../../utils/currency'
 
 interface ChartsProps {
   schedule: AmortizationRow[]
@@ -35,8 +36,8 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
             <LineChart data={balanceChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
+              <YAxis tickFormatter={formatCurrencyTick} />
+              <Tooltip formatter={formatTooltipCurrency} />
               <Legend />
               <Line
                 type="monotone"
@@ -64,8 +65,8 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
             <BarChart data={schedule}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
+              <YAxis tickFormatter={formatCurrencyTick} />
+              <Tooltip formatter={formatTooltipCurrency} />
               <Legend />
               <Bar dataKey="interest" fill="#ef8354" name="Interes" />
               <Bar dataKey="principalPayment" fill="#2d6a4f" name="Capital" />
@@ -75,6 +76,22 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
       </div>
     </section>
   )
+}
+
+function formatCurrencyTick(value: number | string | undefined): string {
+  const numericValue = Number(value)
+  if (!Number.isFinite(numericValue)) {
+    return '$ 0,00'
+  }
+  return formatCop(numericValue)
+}
+
+function formatTooltipCurrency(value: number | string | undefined): string {
+  const numericValue = Number(value)
+  if (!Number.isFinite(numericValue)) {
+    return '$ 0,00'
+  }
+  return formatCop(numericValue)
 }
 
 function buildBalanceChartData(
@@ -95,3 +112,4 @@ function buildBalanceChartData(
 
   return rows
 }
+

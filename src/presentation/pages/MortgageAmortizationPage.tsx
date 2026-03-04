@@ -81,5 +81,5 @@ function formatMonths(months: number): string {
     return `${months} meses`
   }
 
-  return `${years} anos y ${remainingMonths} meses`
+  return `${years} años y ${remainingMonths} meses`
 }

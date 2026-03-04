@@ -13,7 +13,7 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     title: 'Amortizacion credito vivienda - Mis Finanzas Claras',
     description:
       'Calcula tu tabla de amortizacion de credito de vivienda y valida cuota teorica en sistema frances.',
-    canonical: buildCanonical('/amortización-credito-vivienda'),
+    canonical: buildCanonical('/amortizacion-credito-vivienda'),
     ogType: 'website',
   },
   howItWorks: {

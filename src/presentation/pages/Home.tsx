@@ -43,7 +43,7 @@ export function Home() {
               .map((calculator) => (
                 <Link
                   key={calculator.id}
-                  to="/amortizaci�n-credito-vivienda"
+                  to="/amortizacion-credito-vivienda"
                   className="upcoming-card-link"
                 >
                   <article className="upcoming-card upcoming-card-active">

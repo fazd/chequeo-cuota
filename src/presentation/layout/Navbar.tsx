@@ -53,7 +53,7 @@ export function Navbar() {
             </NavLink>
           ))}
           <Link
-            to="/amortización-credito-vivienda"
+            to="/amortizacion-credito-vivienda"
             className="site-nav-cta"
             onClick={() => setOpen(false)}
           >

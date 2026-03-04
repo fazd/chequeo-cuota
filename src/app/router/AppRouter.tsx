@@ -42,11 +42,7 @@ export function AppRouter() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/amortización-credito-vivienda" element={<MortgageAmortizationPage />} />
-            <Route
-              path="/amortizacion-credito-vivienda"
-              element={<Navigate to="/amortización-credito-vivienda" replace />}
-            />
+            <Route path="/amortizacion-credito-vivienda" element={<MortgageAmortizationPage />} />
             <Route path="/como-funciona" element={<HowItWorksPage />} />
             <Route path="/blog" element={<BlogIndexPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
