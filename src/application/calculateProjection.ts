@@ -69,6 +69,7 @@ export function calculateProjection(
 
   return {
     schedule,
+    baselineSchedule,
     calculatedMonthlyPayment: installmentExInsurance,
     totalInterest,
     totalPaid,
@@ -83,3 +84,5 @@ export function calculateProjection(
     interestSavingsFromPrepayments: Math.max(0, baselineTotalInterest - totalInterest),
   }
 }
+
+

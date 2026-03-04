@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { buildLoanSummary } from '../../application/loanSummary'
 import { calculateProjection } from '../../application/calculateProjection'
 import type { LoanInput, LoanProjection } from '../../domain/loan.types'
+import { formatCop } from '../../utils/currency'
 import { AmortizationTable } from '../components/AmortizationTable'
 import { Charts } from '../components/Charts'
 import { ExcelCheckPanel } from '../components/ExcelCheckPanel'
@@ -22,12 +23,21 @@ export function Home() {
     [projection],
   )
 
+  const showSavingsSummary =
+    !!projection &&
+    (projection.monthsReduced > 0 || projection.interestSavingsFromPrepayments > 0)
+
   return (
-    <main className="app-shell">
-      <h1 className="title">Chequeo de Cuota Hipotecaria</h1>
+    <main className="app-shell app-surface">
+      <div className="hero">
+        <div className="hero-icon" aria-hidden>
+          C
+        </div>
+        <h1 className="title">Chequeo de Credito Hipotecario</h1>
+      </div>
       <p className="subtitle">
-        Verifica si tu cuota bajo sistema frances coincide con la proyeccion
-        teorica.
+        Analiza y optimiza tu prestamo. Verifica si tu cuota bajo sistema
+        frances coincide con la proyeccion teorica.
       </p>
 
       <LoanForm onCalculate={handleCalculate} />
@@ -35,7 +45,13 @@ export function Home() {
       {projection && summary ? (
         <>
           <SummaryCards projection={projection} summary={summary} />
-          <Charts schedule={projection.schedule} />
+          {showSavingsSummary ? (
+            <p className="savings-summary">
+              Gracias a los aportes adicionales, ahorras {formatCop(summary.interestSavingsFromPrepayments)}
+              {' '}en intereses y reduces el plazo en {formatMonths(summary.monthsReduced)}.
+            </p>
+          ) : null}
+          <Charts schedule={projection.schedule} baselineSchedule={projection.baselineSchedule} />
           <AmortizationTable rows={projection.schedule} />
           <ExcelCheckPanel schedule={projection.schedule} />
           <ExportCSVButton schedule={projection.schedule} />
@@ -44,3 +60,15 @@ export function Home() {
     </main>
   )
 }
+
+function formatMonths(months: number): string {
+  const years = Math.floor(months / 12)
+  const remainingMonths = months % 12
+
+  if (years === 0) {
+    return `${months} meses`
+  }
+
+  return `${years} años y ${remainingMonths} meses`
+}
+

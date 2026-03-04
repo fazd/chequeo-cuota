@@ -62,7 +62,7 @@ function formatMonths(months: number): string {
   if (years === 0) {
     return `${months} meses`
   }
-  return `${years} anos ${remainingMonths} meses`
+  return `${years} años ${remainingMonths} meses`
 }
 
 interface MetricProps {

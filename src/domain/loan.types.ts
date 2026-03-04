@@ -25,6 +25,7 @@ export interface AmortizationRow {
 
 export interface LoanProjection {
   schedule: AmortizationRow[]
+  baselineSchedule: AmortizationRow[]
   calculatedMonthlyPayment: number
   totalInterest: number
   totalPaid: number
@@ -48,3 +49,5 @@ export interface ConstantExtraPayment {
   amount: number
   everyNMonths: number
 }
+
+
