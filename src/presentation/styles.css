@@ -689,6 +689,12 @@ th {
   font-size: 1.08rem;
 }
 
+.learn-suggest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
 .upcoming-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -775,6 +781,56 @@ th {
   gap: 0.9rem;
 }
 
+.blog-tags-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.3rem 0 1rem;
+}
+
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.tag-chip {
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.38rem 0.55rem;
+}
+
+button.tag-chip {
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, border-color 0.16s ease;
+}
+
+button.tag-chip:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.98);
+  border-color: #818cf8;
+}
+
+.tag-chip.active {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  border-color: #4338ca;
+  color: #fff;
+}
+
+.tag-chip.static {
+  cursor: default;
+}
+
+.tag-chip.link {
+  text-decoration: none;
+}
+
 .blog-card {
   background: #fff;
   border: 1px solid #dbe4f0;
@@ -816,23 +872,138 @@ th {
   border: 1px solid #dbe4f0;
   border-radius: 12px;
   margin-top: 1rem;
-  padding: 1rem;
+  padding: clamp(1rem, 2.4vw, 1.6rem);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
 }
 
 .blog-post-content {
   color: #334155;
-  line-height: 1.6;
+  line-height: 1.75;
+  font-size: 1.03rem;
+  max-width: 72ch;
+  animation: blogFadeUp 0.36s ease;
 }
 
 .blog-post-content h2,
 .blog-post-content h3 {
   color: #0f172a;
-  margin-top: 1rem;
+  margin-top: 1.4rem;
+  line-height: 1.2;
 }
 
 .blog-post-content p,
 .blog-post-content li {
   font-size: 0.97rem;
+}
+
+.blog-post-content h2 {
+  font-size: clamp(1.45rem, 2.6vw, 2rem);
+  letter-spacing: -0.01em;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.blog-post-content h3 {
+  font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+}
+
+.blog-post-content p {
+  margin: 0.9rem 0;
+}
+
+.blog-post-content p:first-of-type {
+  font-size: 1.08rem;
+  color: #1f334d;
+}
+
+.blog-post-content strong {
+  color: #0f172a;
+}
+
+.blog-post-content a {
+  color: #1d4ed8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.16s ease;
+}
+
+.blog-post-content a:hover {
+  color: #1e40af;
+}
+
+.blog-post-content ul,
+.blog-post-content ol {
+  margin: 0.85rem 0 1rem;
+  padding-left: 1.3rem;
+}
+
+.blog-post-content li {
+  margin: 0.35rem 0;
+}
+
+.blog-post-content ul li::marker,
+.blog-post-content ol li::marker {
+  color: #475569;
+}
+
+.blog-post-content blockquote {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid #6366f1;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #eef2ff 0%, #f8faff 100%);
+  color: #1e3a8a;
+}
+
+.blog-post-content hr {
+  border: 0;
+  border-top: 1px solid #dbe4f0;
+  margin: 1.25rem 0;
+}
+
+.blog-post-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.blog-post-content th,
+.blog-post-content td {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.blog-post-content code {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.92em;
+}
+
+.blog-post-content pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 0.95rem;
+  overflow-x: auto;
+}
+
+.blog-post-content pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+@keyframes blogFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .static-page {
@@ -847,6 +1018,17 @@ th {
   display: inline-block;
   margin-bottom: 0.6rem;
   color: #3730a3;
+  text-decoration: none;
+}
+
+.not-found-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.8rem;
+  min-height: 44px;
+  padding: 0 1rem;
+  font-size: 0.95rem;
   text-decoration: none;
 }
 

@@ -1,28 +1,391 @@
 export const frontmatter = {
   title: 'EA vs nominal vencida: diferencias clave',
   date: '2026-03-03',
-  excerpt: 'Aprende cuando usar tasa efectiva anual y cuando usar tasa nominal vencida.',
+  excerpt: 'Aprende cuándo usar tasa efectiva anual y cuándo usar tasa nominal vencida para evitar errores en cálculos de créditos.',
   tags: ['tasas', 'ea', 'nominal-vencida'],
 }
 
 # EA vs nominal vencida
 
-Si tu banco te entrega tasa **EA**, debes convertirla a tasa mensual con:
+Cuando revisas un crédito hipotecario, un crédito de consumo o incluso una inversión, es muy común encontrar diferentes formas de expresar las tasas de interés.  
+
+Dos de las más comunes son:
+
+- **Tasa Efectiva Anual (EA)**
+- **Tasa Nominal Anual Vencida**
+
+Entender la diferencia entre estas dos tasas es fundamental para evitar errores en cálculos financieros, especialmente si quieres verificar si la **cuota que te cobra el banco es correcta**.
+
+En este artículo veremos:
+
+- Qué significa cada tipo de tasa
+- Cómo convertirlas
+- Por qué pueden generar confusión
+- Cómo usarlas correctamente en cálculos de cuotas
+
+---
+
+# Qué es la tasa efectiva anual (EA)
+
+La **tasa efectiva anual (EA)** representa el crecimiento real de un capital en un año **teniendo en cuenta la capitalización de los intereses**.
+
+En otras palabras:
+
+> Es la tasa que ya incluye el efecto de los intereses sobre intereses.
+
+Por ejemplo, si una inversión tiene una tasa del **12% EA**, significa que:
+
+- Si inviertes \$1.000
+- Al final del año tendrás **\$1.120**
+
+Pero durante el año los intereses se van acumulando y generando nuevos intereses.
+
+Esto hace que la EA sea una forma **muy transparente** de expresar tasas, porque refleja el crecimiento real del dinero.
+
+---
+
+# Convertir EA a tasa mensual
+
+Muchos cálculos financieros —como créditos hipotecarios— funcionan con **periodos mensuales**.
+
+Por eso necesitamos convertir la tasa anual a una tasa mensual equivalente.
+
+La fórmula es:
 
 $$
 i_m = (1 + EA)^{1/12} - 1
 $$
 
-Si te entrega tasa **nominal vencida anual**, una aproximacion usada en este proyecto es:
+donde:
+
+- $EA$ = tasa efectiva anual  
+- $i_m$ = tasa efectiva mensual
+
+---
+
+### Ejemplo
+
+Supongamos una tasa:
+
+**12% EA**
+
+Entonces:
+
+$$
+i_m = (1 + 0.12)^{1/12} - 1
+$$
+
+Resultado:
+
+$$
+i_m \approx 0.9489\%
+$$
+
+Esto significa que el interés mensual equivalente es aproximadamente **0.95% mensual**.
+
+---
+
+# Qué es la tasa nominal vencida
+
+La **tasa nominal anual vencida** es otra forma común de expresar tasas, especialmente en créditos bancarios.
+
+Se suele escribir como:
+
+12% N.V.
+10% N.A.V.
+15% nominal anual vencida
+
+
+Esta tasa **no representa directamente el crecimiento real del dinero**.
+
+En realidad es simplemente una tasa anual **dividida en varios periodos**.
+
+Por ejemplo:
+
+Si el banco dice:
+
+12% nominal anual vencida
+
+
+significa:
+
+- 12% al año
+- dividido en **12 periodos mensuales**
+
+---
+
+# Convertir nominal vencida a tasa mensual
+
+Una aproximación común (y la usada en muchos sistemas financieros) es:
 
 $$
 i_m = \frac{j}{12}
 $$
 
-luego se obtiene la EA equivalente:
+donde:
+
+- $j$ = tasa nominal anual
+- $i_m$ = tasa mensual
+
+---
+
+### Ejemplo
+
+Si el banco da:
+
+**12% nominal anual vencida**
+
+entonces:
+
+$$
+i_m = \frac{0.12}{12}
+$$
+
+resultado:
+
+$$
+i_m = 1\%
+$$
+
+Es decir, **1% mensual**.
+
+---
+
+# Convertir nominal vencida a EA
+
+Si queremos saber cuál es la **tasa efectiva anual equivalente**, debemos capitalizar esa tasa mensual.
+
+La fórmula es:
 
 $$
 EA = (1 + i_m)^{12} - 1
 $$
 
-Usar la tasa correcta evita errores importantes en la cuota teorica.
+---
+
+### Ejemplo
+
+Siguiendo el ejemplo anterior:
+
+$$
+i_m = 1\%
+$$
+
+entonces:
+
+$$
+EA = (1 + 0.01)^{12} - 1
+$$
+
+resultado:
+
+$$
+EA \approx 12.68\%
+$$
+
+Esto significa que:
+
+> **12% nominal vencida equivale aproximadamente a 12.68% efectiva anual.**
+
+---
+
+# Por qué esto genera confusión
+
+Muchos usuarios creen que:
+
+12% EA = 12% nominal
+
+
+Pero **no son iguales**.
+
+Veamos la comparación:
+
+<div
+  style={{
+    margin: "2rem 0",
+    width: "100%",
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+  }}
+>
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem", minWidth: "320px" }}>
+  <thead>
+    <tr>
+      <th style={{ padding: "6px 12px", borderBottom: "1px solid #ddd" }}>Tipo de tasa</th>
+      <th style={{ padding: "6px 12px", borderBottom: "1px solid #ddd" }}>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ padding: "6px 12px" }}>12% nominal anual</td>
+      <td style={{ padding: "6px 12px" }}>1% mensual</td>
+    </tr>
+    <tr>
+      <td style={{ padding: "6px 12px" }}>EA equivalente</td>
+      <td style={{ padding: "6px 12px" }}><strong>12.68%</strong></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+Mientras que:
+
+<div
+  style={{
+    margin: "2rem 0",
+    width: "100%",
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+  }}
+>
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem", minWidth: "320px" }}>
+  <thead>
+    <tr>
+      <th style={{ padding: "6px 12px", borderBottom: "1px solid #ddd" }}>Tipo de tasa</th>
+      <th style={{ padding: "6px 12px", borderBottom: "1px solid #ddd" }}>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ padding: "6px 12px" }}>12% EA</td>
+      <td style={{ padding: "6px 12px" }}><strong>0.9489% mensual</strong></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+Esto significa que:
+
+- **12% nominal es más caro que 12% EA**
+
+Aunque el número "12%" parece el mismo.
+
+---
+
+# Por qué los bancos usan tasas nominales
+
+Las tasas nominales existen por varias razones:
+
+### 1. Simplicidad histórica
+
+Antes de las calculadoras y software financiero, dividir una tasa anual era más simple que calcular potencias.
+
+---
+
+### 2. Convención financiera
+
+Muchos productos financieros tradicionales usan tasas nominales por convención.
+
+Por ejemplo:
+
+- créditos de consumo
+- tarjetas de crédito
+- algunos créditos hipotecarios
+
+---
+
+### 3. Regulación
+
+En muchos países, la regulación financiera exige que ciertos productos se publiquen con **tasas nominales y efectivas** para mayor transparencia.
+
+---
+
+# Cómo afecta esto a tu crédito hipotecario
+
+Cuando un banco calcula tu cuota bajo **sistema francés (cuota fija)**, la tasa utilizada en la fórmula debe ser **la tasa efectiva del periodo de pago**.
+
+Si la cuota es mensual, necesitas:
+
+tasa efectiva mensual
+
+
+La fórmula de la cuota es:
+
+$$
+C = P \cdot \frac{i (1+i)^n}{(1+i)^n - 1}
+$$
+
+donde:
+
+- $C$ = cuota
+- $P$ = saldo del crédito
+- $i$ = tasa mensual
+- $n$ = número de cuotas
+
+Si usas la tasa incorrecta, el resultado puede diferir significativamente.
+
+---
+
+# Un error común al verificar cuotas
+
+Un error frecuente al intentar verificar la cuota del banco es:
+
+1. El banco da la tasa en **EA**
+2. El usuario la usa directamente como tasa mensual
+
+Esto produce una cuota **incorrecta**.
+
+Por ejemplo:
+
+10% EA
+
+no significa:
+
+0.10 / 12
+
+
+La conversión correcta es:
+
+$$
+(1.10)^{1/12} - 1
+$$
+
+---
+
+# Por qué este proyecto usa estas conversiones
+
+En este proyecto usamos las siguientes reglas:
+
+### Si la tasa es EA
+
+$$
+i_m = (1 + EA)^{1/12} - 1
+$$
+
+---
+
+### Si la tasa es nominal vencida anual
+
+$$
+i_m = \frac{j}{12}
+$$
+
+Luego, cuando es necesario, calculamos la EA equivalente:
+
+$$
+EA = (1 + i_m)^{12} - 1
+$$
+
+Esto permite comparar correctamente:
+
+- cuota teórica
+- cuota reportada por el banco
+
+---
+
+# Conclusión
+
+Las tasas de interés pueden parecer simples, pero pequeñas diferencias en cómo se expresan pueden cambiar los resultados de forma significativa.
+
+Recordemos:
+
+- **EA** ya incluye capitalización
+- **Nominal vencida** debe dividirse en periodos
+- Siempre debes convertir a **tasa del periodo de pago**
+
+Si no haces esta conversión correctamente, podrías:
+
+- calcular una cuota incorrecta
+- pensar que el banco está cobrando mal
+- o no detectar un error real en tu crédito
+
+Por eso, entender estas conversiones es el primer paso para **analizar correctamente cualquier crédito o inversión**.

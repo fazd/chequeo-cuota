@@ -1,4 +1,6 @@
 import { useMemo, useState, lazy, Suspense, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { getAllBlogPosts } from '../../application/blog/blogContent'
 import { buildLoanSummary } from '../../application/loanSummary'
 import { calculateProjection } from '../../application/calculateProjection'
 import type { LoanInput, LoanProjection } from '../../domain/loan.types'
@@ -15,6 +17,7 @@ const Charts = lazy(() => import('../components/Charts').then((m) => ({ default:
 export function MortgageAmortizationPage() {
   const [projection, setProjection] = useState<LoanProjection | null>(null)
   const resultsRef = useRef<HTMLDivElement | null>(null)
+  const suggestedPosts = useMemo(() => getSuggestedPosts(), [])
 
   function handleCalculate(input: LoanInput) {
     setProjection(calculateProjection(input))
@@ -54,6 +57,30 @@ export function MortgageAmortizationPage() {
           <LoanForm onCalculate={handleCalculate} />
         </section>
 
+        <section className="landing-block">
+          <h2 className="landing-title">Quieres profundizar como funciona?</h2>
+          <p className="page-intro">
+            Estos articulos te ayudan a entender mejor tasas, sistema frances y
+            estrategias de abonos para interpretar el resultado de tu simulacion.
+          </p>
+          <div className="learn-suggest-grid">
+            {suggestedPosts.map((post) => (
+              <Link key={post.slug} to={`/blog/${post.slug}`} className="blog-card-link">
+                <article className="blog-card">
+                  <p className="blog-meta">
+                    {post.date} - {post.readingTime} min lectura
+                  </p>
+                  <h2>{post.title}</h2>
+                  <p>{post.excerpt}</p>
+                </article>
+              </Link>
+            ))}
+          </div>
+          <Link to="/blog" className="text-link">
+            Ver todos los articulos del blog
+          </Link>
+        </section>
+
         {projection && summary ? (
           <div ref={resultsRef}>
             <SummaryCards projection={projection} summary={summary} />
@@ -89,4 +116,23 @@ function formatMonths(months: number): string {
   }
 
   return `${years} anios y ${remainingMonths} meses`
+}
+
+function getSuggestedPosts() {
+  const allPosts = getAllBlogPosts()
+  const prioritySlugs = [
+    'sistema-frances',
+    'ea-vs-nominal-vencida',
+    'reducir-plazo-vs-reducir-cuota',
+  ]
+
+  const priorityPosts = prioritySlugs
+    .map((slug) => allPosts.find((post) => post.slug === slug))
+    .filter((post): post is NonNullable<typeof post> => post != null)
+
+  const remainingPosts = allPosts.filter(
+    (post) => !priorityPosts.some((selected) => selected.slug === post.slug),
+  )
+
+  return [...priorityPosts, ...remainingPosts].slice(0, 3)
 }

@@ -135,7 +135,7 @@ function formatMonths(months: number): string {
   if (years === 0) {
     return `${months} meses`
   }
-  return `${years} anios ${remainingMonths} meses`
+  return `${years} años ${remainingMonths} meses`
 }
 
 function isZero(value: number): boolean {

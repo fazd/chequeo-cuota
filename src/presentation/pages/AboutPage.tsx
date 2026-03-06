@@ -14,7 +14,7 @@ export function AboutPage() {
         Somos independientes de bancos y no almacenamos los datos financieros que
         ingresas.
       </p>
-      <p>Contacto: contacto@misfinanzasclaras.com</p>
+      <p>Contacto: fabiozapata980729@gmail.com</p>
     </section>
   )
 }

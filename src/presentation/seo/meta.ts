@@ -16,13 +16,6 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     canonical: buildCanonical('/amortizacion-credito-vivienda'),
     ogType: 'website',
   },
-  howItWorks: {
-    title: 'Como funciona el sistema frances - Mis Finanzas Claras',
-    description:
-      'Aprende la formula del sistema frances, conversion de tasa EA a mensual y como interpretar la tabla de amortizacion.',
-    canonical: buildCanonical('/como-funciona'),
-    ogType: 'article',
-  },
   blogIndex: {
     title: 'Blog de educacion financiera - Mis Finanzas Claras',
     description:

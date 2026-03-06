@@ -35,6 +35,15 @@ export function BlogPostPage() {
       <Link to="/blog" className="text-link">&lt; Volver al blog</Link>
       <h1 className="page-title">{post.title}</h1>
       <p className="blog-meta">{post.date} - {post.readingTime} min lectura</p>
+      {post.tags?.length ? (
+        <div className="blog-tags" aria-label="Tags del articulo">
+          {post.tags.map((tag) => (
+            <Link key={tag} to={`/blog?tag=${encodeURIComponent(tag)}`} className="tag-chip static link">
+              #{tag}
+            </Link>
+          ))}
+        </div>
+      ) : null}
       <div className="blog-post-content">
         <PostComponent />
       </div>

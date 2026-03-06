@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { useEffect, useState } from 'react'
 import type { AmortizationRow } from '../../domain/loan.types'
 import { formatCop } from '../../utils/currency'
 
@@ -30,6 +31,17 @@ const copTickFormatter = new Intl.NumberFormat('es-CO', {
 })
 
 export function Charts({ schedule, baselineSchedule }: ChartsProps) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    const update = () => setIsMobile(mediaQuery.matches)
+
+    update()
+    mediaQuery.addEventListener('change', update)
+    return () => mediaQuery.removeEventListener('change', update)
+  }, [])
+
   const hasExtraPayments = schedule.some((row) => row.extraPayment > 0)
   const balanceChartData = buildBalanceChartData(schedule, baselineSchedule)
 
@@ -43,8 +55,15 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
               <LineChart data={balanceChartData} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" tickMargin={8} />
-                <YAxis tickFormatter={formatCurrencyTick} tickMargin={8} width={96} />
-                <Tooltip formatter={formatTooltipCurrency} />
+                <YAxis
+                  tickFormatter={(value) => formatCurrencyTick(value, isMobile)}
+                  tickMargin={8}
+                  width={isMobile ? 70 : 96}
+                />
+                <Tooltip
+                  formatter={(value) => formatTooltipCurrency(value, isMobile)}
+                  position={isMobile ? { x: 8, y: 8 } : undefined}
+                />
                 <Legend />
                 <Line
                   type="monotone"
@@ -75,8 +94,12 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
               <BarChart data={schedule} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" tickMargin={8} />
-                <YAxis tickFormatter={formatCurrencyTick} tickMargin={8} width={96} />
-                <Tooltip formatter={formatTooltipCurrency} />
+                <YAxis
+                  tickFormatter={(value) => formatCurrencyTick(value, isMobile)}
+                  tickMargin={8}
+                  width={isMobile ? 70 : 96}
+                />
+                <Tooltip formatter={(value) => formatTooltipCurrency(value, isMobile)} />
                 <Legend />
                 <Bar dataKey="interest" fill="#ef8354" name="Interes" />
                 <Bar dataKey="principalPayment" fill="#2d6a4f" name="Capital" />
@@ -89,21 +112,42 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
   )
 }
 
-function formatCurrencyTick(value: number | string | undefined): string {
-  const numericValue = Number(value)
+function formatCurrencyTick(
+  value: number | string | readonly (number | string)[] | undefined,
+  isMobile: boolean,
+): string {
+  const numericValue = Number(Array.isArray(value) ? value[0] : value)
   if (!Number.isFinite(numericValue)) {
     return '$0'
+  }
+
+  if (isMobile && Math.abs(numericValue) >= 1_000_000) {
+    return `$${formatMillions(numericValue)}`
   }
 
   return `$${copTickFormatter.format(Math.round(numericValue))}`
 }
 
-function formatTooltipCurrency(value: number | string | undefined): string {
-  const numericValue = Number(value)
+function formatTooltipCurrency(
+  value: number | string | readonly (number | string)[] | undefined,
+  isMobile: boolean,
+): string {
+  const numericValue = Number(Array.isArray(value) ? value[0] : value)
   if (!Number.isFinite(numericValue)) {
     return '$0'
   }
+
+  if (isMobile && Math.abs(numericValue) >= 1_000_000) {
+    return `$${formatMillions(numericValue)}`
+  }
+
   return formatCop(numericValue)
+}
+
+function formatMillions(value: number): string {
+  const millions = value / 1_000_000
+  const formatted = millions.toFixed(2).replace(/\.?0+$/, '')
+  return `${formatted}M`
 }
 
 function buildBalanceChartData(

@@ -8,7 +8,7 @@ export function NotFoundPage() {
       <SeoHead meta={seoMetaByPath.notFound} />
       <h1 className="page-title">404</h1>
       <p>La pagina que intentas visitar no existe.</p>
-      <Link to="/" className="btn-primary">Volver al inicio</Link>
+      <Link to="/" className="btn-primary not-found-cta">Volver al inicio</Link>
     </section>
   )
 }

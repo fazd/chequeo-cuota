@@ -15,6 +15,11 @@ const blogModules = import.meta.glob('../../content/blog/*.mdx', {
   eager: true,
 }) as Record<string, BlogModule>
 
+const blogRawModules = import.meta.glob('../../content/blog/*.mdx', {
+  eager: true,
+  as: 'raw',
+}) as Record<string, string | { default?: string }>
+
 export function getAllBlogPosts(): BlogPostMeta[] {
   return buildBlogEntries()
     .map(({ Component: _, ...meta }) => meta)
@@ -45,6 +50,8 @@ function buildBlogEntries(): BlogPostEntry[] {
         throw new Error(`Invalid frontmatter required fields in ${path}`)
       }
 
+      const rawContent = getRawContent(path)
+
       return {
         slug,
         title: module.frontmatter.title,
@@ -52,18 +59,41 @@ function buildBlogEntries(): BlogPostEntry[] {
         excerpt: module.frontmatter.excerpt,
         coverImage: module.frontmatter.coverImage,
         tags: module.frontmatter.tags,
-        readingTime: estimateReadingTimeFromExcerpt(module.frontmatter.excerpt),
+        readingTime: estimateReadingTimeFromContent(rawContent),
         Component: module.default,
       }
     })
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
 }
 
-function estimateReadingTimeFromExcerpt(excerpt: string): number {
-  const words = excerpt
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length
+function estimateReadingTimeFromContent(rawContent: string): number {
+  const contentWithoutFrontmatter = rawContent.replace(
+    /export\s+const\s+frontmatter\s*=\s*\{[\s\S]*?\}\s*/m,
+    '',
+  )
 
-  return Math.max(1, Math.round(words / 120))
+  const normalizedContent = contentWithoutFrontmatter
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/\$\$[\s\S]*?\$\$/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#>*_[\]\(\)\-]/g, ' ')
+
+  const words = normalizedContent.match(/[A-Za-zÀ-ÿ0-9]+/g)?.length ?? 0
+
+  return Math.max(1, Math.round(words / 200))
+}
+
+function getRawContent(path: string): string {
+  const rawModule = blogRawModules[path]
+
+  if (typeof rawModule === 'string') {
+    return rawModule
+  }
+
+  if (rawModule && typeof rawModule.default === 'string') {
+    return rawModule.default
+  }
+
+  return ''
 }

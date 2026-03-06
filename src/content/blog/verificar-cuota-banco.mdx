@@ -1,0 +1,105 @@
+export const frontmatter = {
+  title: 'Cómo verificar si tu banco calcula bien la cuota de tu crédito hipotecario',
+  date: '2026-03-05',
+  excerpt: 'Aprende cómo verificar si la cuota de tu crédito hipotecario está bien calculada y qué datos necesitas para comprobarlo.',
+  tags: ['credito', 'hipoteca', 'cuota', 'amortizacion'],
+}
+
+# Cómo verificar si tu banco calcula bien la cuota de tu crédito hipotecario
+
+Cuando tienes un crédito hipotecario, el banco calcula una **cuota mensual** que incluye:
+
+- pago de **capital**
+- pago de **intereses**
+- seguros asociados al crédito
+
+Aunque estos cálculos son estándar, muchas personas quieren verificar que el valor de la cuota esté **correctamente calculado**.
+
+La buena noticia es que es posible comprobarlo fácilmente si tienes algunos datos básicos de tu crédito.
+
+---
+
+# Qué necesitas para hacer la verificación
+
+Para calcular la cuota teórica de un crédito hipotecario necesitas conocer:
+
+- **saldo actual del crédito**
+- **tasa de interés**
+- **plazo restante en meses**
+- **valor de la cuota que cobra el banco**
+- **valor de los seguros incluidos**
+
+Con esta información es posible recrear el cálculo del banco usando el **sistema de amortización francés**, que es el método más común en créditos hipotecarios.
+
+---
+
+# Cómo se calcula la cuota teórica
+
+En el sistema francés, la cuota mensual se calcula con una fórmula financiera estándar.
+
+Primero se obtiene la **tasa mensual equivalente**.
+
+Si la tasa está en **efectiva anual (EA)**:
+
+$$
+i_m = (1 + EA)^{1/12} - 1
+$$
+
+Luego se usa la fórmula de la cuota:
+
+$$
+C = \frac{P \cdot i_m}{1 - (1 + i_m)^{-n}}
+$$
+
+donde:
+
+- **P** es el saldo del crédito  
+- **i_m** es la tasa mensual  
+- **n** es el número de cuotas restantes  
+
+El resultado es la **cuota teórica sin seguros**.
+
+Para obtener la cuota total que pagas al banco, simplemente debes **sumar los seguros**.
+
+---
+
+# Por qué puede haber diferencias
+
+Cuando haces el cálculo por tu cuenta, es posible que notes pequeñas diferencias frente al valor del banco.
+
+Esto puede ocurrir por varias razones:
+
+- redondeos en la tasa mensual
+- forma en que el banco calcula los seguros
+- fecha exacta de corte del crédito
+- redondeos en los intereses
+
+Pequeñas diferencias son normales, pero si la diferencia es significativa puede valer la pena revisar los datos con más detalle.
+
+---
+
+# Qué revisar si la cuota parece incorrecta
+
+Si el cálculo no coincide con lo que te cobra el banco, revisa primero:
+
+- que la **tasa esté en el mismo formato** (EA o nominal)
+- que el **plazo restante esté correcto**
+- que los **seguros estén separados del cálculo**
+
+También es importante confirmar que estás usando el **saldo actual del crédito**, no el saldo original.
+
+---
+
+# Conclusión
+
+Verificar la cuota de tu crédito hipotecario es una buena forma de entender mejor cómo funciona tu deuda.
+
+Con unos pocos datos puedes recrear el cálculo y confirmar que el valor de la cuota sea consistente con las condiciones del crédito.
+
+Además, entender este cálculo también te permite evaluar mejor estrategias como:
+
+- **abonos a capital**
+- **reducción de plazo**
+- **refinanciaciones**
+
+Todas estas decisiones pueden tener un impacto importante en el costo total de tu crédito.

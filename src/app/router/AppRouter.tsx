@@ -8,7 +8,6 @@ const MortgageAmortizationPage = lazy(() =>
     default: m.MortgageAmortizationPage,
   })),
 )
-const HowItWorksPage = lazy(() => import('../../presentation/pages/HowItWorksPage').then((m) => ({ default: m.HowItWorksPage })))
 const BlogIndexPage = lazy(() => import('../../presentation/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('../../presentation/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })))
 const AboutPage = lazy(() => import('../../presentation/pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -43,7 +42,6 @@ export function AppRouter() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/amortizacion-credito-vivienda" element={<MortgageAmortizationPage />} />
-            <Route path="/como-funciona" element={<HowItWorksPage />} />
             <Route path="/blog" element={<BlogIndexPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/sobre" element={<AboutPage />} />
