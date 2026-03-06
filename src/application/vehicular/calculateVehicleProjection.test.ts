@@ -60,4 +60,28 @@ describe('calculateVehicleProjection', () => {
     expect(withPrepayments.monthsReduced).toBeGreaterThan(0)
     expect(withPrepayments.interestSavingsFromPrepayments).toBeGreaterThan(0)
   })
+
+  it('incorpora seguros en cuota teorica y normaliza cuota banco cuando aplica', () => {
+    const projection = calculateVehicleProjection({
+      principal: 90_000_000,
+      annualEffectiveRate: 0.16,
+      termMonths: 72,
+      bankMonthlyPayment: 2_500_000,
+      monthlyInsurance: 50_000,
+      monthlyLifeInsuranceRate: 0.001,
+      bankPaymentIncludesInsurance: true,
+    })
+
+    const expectedInsurance =
+      50_000 + 90_000_000 * 0.001
+
+    expect(projection.theoreticalInstallmentInclInsurance).toBeCloseTo(
+      projection.theoreticalInstallmentExInsurance + expectedInsurance,
+      6,
+    )
+    expect(projection.bankInstallmentNormalized).toBeCloseTo(
+      2_500_000 - expectedInsurance,
+      6,
+    )
+  })
 })

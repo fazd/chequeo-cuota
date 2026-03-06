@@ -11,6 +11,9 @@ export interface StandardLoanFormInput {
   annualEffectiveRate: number
   termMonths: number
   bankMonthlyPayment?: number
+  monthlyInsurance?: number
+  monthlyLifeInsuranceRate?: number
+  bankPaymentIncludesInsurance: boolean
   constantExtraPayment?: {
     amount: number
     everyNMonths: number
@@ -22,6 +25,11 @@ interface FormState {
   annualEffectiveRatePct: string
   termMonths: string
   bankMonthlyPayment: string
+  bankPaymentIncludesInsurance: string
+  hasFixedInsurance: boolean
+  monthlyInsurance: string
+  hasVariableInsurance: boolean
+  monthlyLifeInsuranceRatePct: string
   wantsExtraPayments: boolean
   periodicExtraAmount: string
   periodicExtraEveryMonths: string
@@ -32,6 +40,11 @@ const initialState: FormState = {
   annualEffectiveRatePct: '',
   termMonths: '',
   bankMonthlyPayment: '',
+  bankPaymentIncludesInsurance: 'false',
+  hasFixedInsurance: false,
+  monthlyInsurance: '',
+  hasVariableInsurance: false,
+  monthlyLifeInsuranceRatePct: '',
   wantsExtraPayments: false,
   periodicExtraAmount: '',
   periodicExtraEveryMonths: '',
@@ -52,11 +65,22 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
     const annualEffectiveRatePct = Number(form.annualEffectiveRatePct)
     const termMonths = Number(form.termMonths)
     const bankMonthlyPayment = parseOptionalMoneyInputValue(form.bankMonthlyPayment)
+    const insuranceEnabled = form.bankPaymentIncludesInsurance === 'true'
+    const monthlyInsurance =
+      insuranceEnabled && form.hasFixedInsurance
+        ? parseMoneyInputValue(form.monthlyInsurance)
+        : 0
+    const monthlyLifeInsuranceRatePct =
+      insuranceEnabled && form.hasVariableInsurance
+        ? Number(form.monthlyLifeInsuranceRatePct)
+        : 0
 
     if (
       !Number.isFinite(principal) ||
       !Number.isFinite(annualEffectiveRatePct) ||
-      !Number.isFinite(termMonths)
+      !Number.isFinite(termMonths) ||
+      !Number.isFinite(monthlyInsurance) ||
+      !Number.isFinite(monthlyLifeInsuranceRatePct)
     ) {
       setError('Completa saldo, tasa y plazo con valores validos.')
       return
@@ -72,6 +96,14 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
       (!Number.isFinite(bankMonthlyPayment) || bankMonthlyPayment <= 0)
     ) {
       setError('Si ingresas cuota banco, debe ser mayor que cero.')
+      return
+    }
+    if (monthlyInsurance < 0) {
+      setError('El seguro fijo debe ser >= 0.')
+      return
+    }
+    if (monthlyLifeInsuranceRatePct < 0) {
+      setError('El interes mensual del seguro variable debe ser >= 0.')
       return
     }
 
@@ -98,9 +130,16 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
       annualEffectiveRate: annualEffectiveRatePct / 100,
       termMonths,
       bankMonthlyPayment,
+      monthlyInsurance,
+      monthlyLifeInsuranceRate: monthlyLifeInsuranceRatePct / 100,
+      bankPaymentIncludesInsurance: insuranceEnabled,
       constantExtraPayment,
     })
   }
+
+  const showInsuranceCard = form.bankPaymentIncludesInsurance === 'true'
+  const insuranceBadge = '2'
+  const extraPaymentsBadge = showInsuranceCard ? '3' : '2'
 
   return (
     <form className="form-stack" onSubmit={handleSubmit}>
@@ -160,14 +199,103 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
                 onChange={(value) => updateField('bankMonthlyPayment', value)}
               />
             </div>
+
+            <div className="field">
+              <label htmlFor="bankPaymentIncludesInsurance">
+                La cuota banco incluye seguros
+              </label>
+              <select
+                id="bankPaymentIncludesInsurance"
+                value={form.bankPaymentIncludesInsurance}
+                onChange={(event) =>
+                  updateField('bankPaymentIncludesInsurance', event.target.value)
+                }
+              >
+                <option value="false">No incluye seguros</option>
+                <option value="true">Si incluye seguros</option>
+              </select>
+            </div>
           </div>
         </div>
       </section>
 
+      {showInsuranceCard ? (
+        <section className="form-card">
+          <header className="form-card-header">
+            <span className="form-card-badge" aria-hidden>
+              {insuranceBadge}
+            </span>
+            <div>
+              <h3 className="section-title">Seguros</h3>
+              <p className="section-description">
+                Configura los seguros asociados a tu credito.
+              </p>
+            </div>
+          </header>
+
+          <div className="form-card-content">
+            <div className="choice-group choice-group-inline">
+              <label className="choice-item" htmlFor="hasFixedInsurance">
+                <input
+                  id="hasFixedInsurance"
+                  type="checkbox"
+                  checked={form.hasFixedInsurance}
+                  onChange={(event) =>
+                    updateField('hasFixedInsurance', event.target.checked)
+                  }
+                />
+                Seguro fijo
+              </label>
+              <label className="choice-item" htmlFor="hasVariableInsurance">
+                <input
+                  id="hasVariableInsurance"
+                  type="checkbox"
+                  checked={form.hasVariableInsurance}
+                  onChange={(event) =>
+                    updateField('hasVariableInsurance', event.target.checked)
+                  }
+                />
+                Seguro variable
+              </label>
+            </div>
+
+            <div className="form-grid">
+              {form.hasFixedInsurance ? (
+                <div className="field">
+                  <label htmlFor="monthlyInsurance">Valor del seguro fijo</label>
+                  <MoneyInput
+                    id="monthlyInsurance"
+                    value={form.monthlyInsurance}
+                    onChange={(value) => updateField('monthlyInsurance', value)}
+                  />
+                </div>
+              ) : null}
+              {form.hasVariableInsurance ? (
+                <div className="field">
+                  <label htmlFor="monthlyLifeInsuranceRatePct">
+                    Interes del seguro variable (%)
+                  </label>
+                  <input
+                    id="monthlyLifeInsuranceRatePct"
+                    type="number"
+                    min={0}
+                    step="any"
+                    value={form.monthlyLifeInsuranceRatePct}
+                    onChange={(event) =>
+                      updateField('monthlyLifeInsuranceRatePct', event.target.value)
+                    }
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="form-card">
         <header className="form-card-header">
           <span className="form-card-badge" aria-hidden>
-            2
+            {extraPaymentsBadge}
           </span>
           <div>
             <h3 className="section-title">Aportes adicionales</h3>

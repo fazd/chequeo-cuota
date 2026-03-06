@@ -113,7 +113,7 @@ function formatMonths(months: number): string {
     return `${months} meses`
   }
 
-  return `${years} anios y ${remainingMonths} meses`
+  return `${years} años y ${remainingMonths} meses`
 }
 
 function getSuggestedPosts() {

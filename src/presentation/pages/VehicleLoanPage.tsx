@@ -21,6 +21,9 @@ export function VehicleLoanPage() {
         annualEffectiveRate: input.annualEffectiveRate,
         termMonths: input.termMonths,
         bankMonthlyPayment: input.bankMonthlyPayment,
+        monthlyInsurance: input.monthlyInsurance,
+        monthlyLifeInsuranceRate: input.monthlyLifeInsuranceRate,
+        bankPaymentIncludesInsurance: input.bankPaymentIncludesInsurance,
         constantExtraPayment: input.constantExtraPayment,
       }),
     )

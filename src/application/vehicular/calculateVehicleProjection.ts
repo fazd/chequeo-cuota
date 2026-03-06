@@ -13,6 +13,8 @@ export function calculateVehicleProjection(
   loanInput: VehicleLoanInput,
   extraPayments?: ExtraPayment[],
 ): VehicleLoanProjection {
+  const monthlyBaseInsurance = loanInput.monthlyInsurance ?? 0
+  const monthlyLifeInsuranceRate = loanInput.monthlyLifeInsuranceRate ?? 0
   const monthlyRate = effectiveAnnualToMonthly(loanInput.annualEffectiveRate)
 
   const installmentExInsurance = calculateFrenchInstallment(
@@ -31,8 +33,8 @@ export function calculateVehicleProjection(
     monthlyRate,
     termMonths: loanInput.termMonths,
     installmentExInsurance,
-    monthlyBaseInsurance: 0,
-    monthlyLifeInsuranceRate: 0,
+    monthlyBaseInsurance,
+    monthlyLifeInsuranceRate,
   })
 
   const schedule = buildFrenchAmortizationSchedule({
@@ -40,8 +42,8 @@ export function calculateVehicleProjection(
     monthlyRate,
     termMonths: loanInput.termMonths,
     installmentExInsurance,
-    monthlyBaseInsurance: 0,
-    monthlyLifeInsuranceRate: 0,
+    monthlyBaseInsurance,
+    monthlyLifeInsuranceRate,
     constantExtraPayment: loanInput.constantExtraPayment,
     extraordinaryExtraPayments: mergedExtraordinaryPayments,
   })
@@ -52,6 +54,9 @@ export function calculateVehicleProjection(
     (sum, row) => sum + row.interest,
     0,
   )
+  const firstMonthLifeInsurance = loanInput.principal * monthlyLifeInsuranceRate
+  const theoreticalInstallmentInclInsurance =
+    installmentExInsurance + monthlyBaseInsurance + firstMonthLifeInsurance
 
   const bankComparisonAvailable =
     typeof loanInput.bankMonthlyPayment === 'number' &&
@@ -59,7 +64,9 @@ export function calculateVehicleProjection(
     loanInput.bankMonthlyPayment > 0
 
   const bankInstallmentNormalized = bankComparisonAvailable
-    ? loanInput.bankMonthlyPayment!
+    ? loanInput.bankPaymentIncludesInsurance
+      ? loanInput.bankMonthlyPayment! - (monthlyBaseInsurance + firstMonthLifeInsurance)
+      : loanInput.bankMonthlyPayment!
     : 0
   const installmentDifference = bankComparisonAvailable
     ? bankInstallmentNormalized - installmentExInsurance
@@ -79,7 +86,7 @@ export function calculateVehicleProjection(
     totalInterest,
     totalPaid,
     theoreticalInstallmentExInsurance: installmentExInsurance,
-    theoreticalInstallmentInclInsurance: installmentExInsurance,
+    theoreticalInstallmentInclInsurance,
     bankComparisonAvailable,
     bankInstallmentNormalized,
     installmentDifference,

@@ -60,4 +60,28 @@ describe('calculatePayrollProjection', () => {
     expect(withPrepayments.monthsReduced).toBeGreaterThan(0)
     expect(withPrepayments.interestSavingsFromPrepayments).toBeGreaterThan(0)
   })
+
+  it('incorpora seguros en cuota teorica y normaliza cuota banco cuando aplica', () => {
+    const projection = calculatePayrollProjection({
+      principal: 40_000_000,
+      annualEffectiveRate: 0.14,
+      termMonths: 60,
+      bankMonthlyPayment: 1_200_000,
+      monthlyInsurance: 30_000,
+      monthlyLifeInsuranceRate: 0.0012,
+      bankPaymentIncludesInsurance: true,
+    })
+
+    const expectedInsurance =
+      30_000 + 40_000_000 * 0.0012
+
+    expect(projection.theoreticalInstallmentInclInsurance).toBeCloseTo(
+      projection.theoreticalInstallmentExInsurance + expectedInsurance,
+      6,
+    )
+    expect(projection.bankInstallmentNormalized).toBeCloseTo(
+      1_200_000 - expectedInsurance,
+      6,
+    )
+  })
 })

@@ -2,6 +2,7 @@ import { formatCop, formatPercent } from '../../utils/currency'
 
 interface StandardProjection {
   theoreticalInstallmentExInsurance: number
+  theoreticalInstallmentInclInsurance: number
   bankComparisonAvailable: boolean
   bankInstallmentNormalized: number
   installmentDifference: number
@@ -26,12 +27,16 @@ export function StandardSummaryCards({ projection, summary }: StandardSummaryCar
     <section className="panel section">
       <div className="cards-grid">
         <Metric
-          label="Cuota teorica"
+          label="Cuota teorica sin seguro"
           value={formatCop(projection.theoreticalInstallmentExInsurance)}
+        />
+        <Metric
+          label="Cuota teorica con seguro"
+          value={formatCop(projection.theoreticalInstallmentInclInsurance)}
         />
         {projection.bankComparisonAvailable ? (
           <Metric
-            label="Cuota banco"
+            label="Cuota banco sin seguro"
             value={formatCop(projection.bankInstallmentNormalized)}
           />
         ) : null}
@@ -64,7 +69,7 @@ function formatMonths(months: number): string {
     return `${months} meses`
   }
 
-  return `${years} anios y ${remainingMonths} meses`
+  return `${years} años y ${remainingMonths} meses`
 }
 
 interface MetricProps {

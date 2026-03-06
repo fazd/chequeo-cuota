@@ -3,6 +3,9 @@ export interface VehicleLoanInput {
   annualEffectiveRate: number
   termMonths: number
   bankMonthlyPayment?: number
+  monthlyInsurance?: number
+  monthlyLifeInsuranceRate?: number
+  bankPaymentIncludesInsurance?: boolean
   constantExtraPayment?: ConstantExtraPayment
   extraordinaryExtraPayments?: ExtraPayment[]
 }
