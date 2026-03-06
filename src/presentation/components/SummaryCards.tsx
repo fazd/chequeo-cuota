@@ -13,6 +13,7 @@ interface MetricItem {
   rawValue: number
   value: string
   description: string
+  requiresBankComparison?: boolean
 }
 
 export function SummaryCards({ projection, summary }: SummaryCardsProps) {
@@ -37,6 +38,7 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
       value: formatCop(projection.bankInstallmentNormalized),
       description:
         'Cuota reportada del banco ajustada al mismo criterio de calculo para compararla con la teorica.',
+      requiresBankComparison: true,
     },
     {
       label: 'Diferencia',
@@ -46,6 +48,7 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
       )})`,
       description:
         'Brecha entre la cuota teorica y la cuota del banco, expresada en valor absoluto y porcentaje.',
+      requiresBankComparison: true,
     },
     {
       label: 'Total intereses',
@@ -104,7 +107,13 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
       value: formatPercent(summary.insurancePct),
       description: 'Porcentaje del total pagado que corresponde a seguros.',
     },
-  ].filter((metric) => !isZero(metric.rawValue))
+  ].filter((metric) => {
+    if (metric.requiresBankComparison && !projection.bankComparisonAvailable) {
+      return false
+    }
+
+    return !isZero(metric.rawValue)
+  })
 
   return (
     <section className="panel section">

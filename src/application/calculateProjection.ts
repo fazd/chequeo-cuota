@@ -54,16 +54,23 @@ export function calculateProjection(
   const theoreticalInstallmentInclInsurance =
     installmentExInsurance + monthlyBaseInsurance + firstMonthLifeInsurance
 
-  const bankInstallmentNormalized = loanInput.bankPaymentIncludesInsurance
-    ? loanInput.bankMonthlyPayment -
-      (monthlyBaseInsurance + firstMonthLifeInsurance)
-    : loanInput.bankMonthlyPayment
-  const installmentDifference =
-    bankInstallmentNormalized - installmentExInsurance
+  const bankComparisonAvailable =
+    typeof loanInput.bankMonthlyPayment === 'number' &&
+    Number.isFinite(loanInput.bankMonthlyPayment) &&
+    loanInput.bankMonthlyPayment > 0
+
+  const bankInstallmentNormalized = bankComparisonAvailable
+    ? loanInput.bankPaymentIncludesInsurance
+      ? loanInput.bankMonthlyPayment! - (monthlyBaseInsurance + firstMonthLifeInsurance)
+      : loanInput.bankMonthlyPayment!
+    : 0
+  const installmentDifference = bankComparisonAvailable
+    ? bankInstallmentNormalized - installmentExInsurance
+    : 0
   const installmentDifferencePct =
-    installmentExInsurance === 0
-      ? 0
-      : (installmentDifference / installmentExInsurance) * 100
+    bankComparisonAvailable && installmentExInsurance !== 0
+      ? (installmentDifference / installmentExInsurance) * 100
+      : 0
   const originalTermMonths = baselineSchedule.length
   const resultingTermMonths = schedule.length
 
@@ -75,6 +82,7 @@ export function calculateProjection(
     totalPaid,
     theoreticalInstallmentExInsurance: installmentExInsurance,
     theoreticalInstallmentInclInsurance,
+    bankComparisonAvailable,
     bankInstallmentNormalized,
     installmentDifference,
     installmentDifferencePct,

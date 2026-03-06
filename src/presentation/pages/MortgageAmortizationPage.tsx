@@ -57,30 +57,6 @@ export function MortgageAmortizationPage() {
           <LoanForm onCalculate={handleCalculate} />
         </section>
 
-        <section className="landing-block">
-          <h2 className="landing-title">Quieres profundizar como funciona?</h2>
-          <p className="page-intro">
-            Estos articulos te ayudan a entender mejor tasas, sistema frances y
-            estrategias de abonos para interpretar el resultado de tu simulacion.
-          </p>
-          <div className="learn-suggest-grid">
-            {suggestedPosts.map((post) => (
-              <Link key={post.slug} to={`/blog/${post.slug}`} className="blog-card-link">
-                <article className="blog-card">
-                  <p className="blog-meta">
-                    {post.date} - {post.readingTime} min lectura
-                  </p>
-                  <h2>{post.title}</h2>
-                  <p>{post.excerpt}</p>
-                </article>
-              </Link>
-            ))}
-          </div>
-          <Link to="/blog" className="text-link">
-            Ver todos los articulos del blog
-          </Link>
-        </section>
-
         {projection && summary ? (
           <div ref={resultsRef}>
             <SummaryCards projection={projection} summary={summary} />
@@ -102,6 +78,28 @@ export function MortgageAmortizationPage() {
             <ExportCSVButton schedule={projection.schedule} />
           </div>
         ) : null}
+
+        <section className="landing-block">
+          <h2 className="landing-title">Para profundizar</h2>
+          <p className="page-intro">
+            Si quieres entender mejor los conceptos del calculo, revisa estos articulos.
+          </p>
+          <div className="learn-suggest-grid">
+            {suggestedPosts.map((post) => (
+              <Link
+                key={post.slug}
+                to={`/blog/${post.slug}`}
+                className="learn-suggest-item"
+              >
+                <h3>{post.title}</h3>
+                <p>{post.excerpt}</p>
+              </Link>
+            ))}
+          </div>
+          <Link to="/blog" className="text-link">
+            Ver todos los articulos del blog
+          </Link>
+        </section>
       </section>
     </>
   )

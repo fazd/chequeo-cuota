@@ -24,6 +24,7 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 0.75rem;
 }
@@ -44,6 +45,8 @@ body,
   font-size: clamp(1.55rem, 3.4vw, 2.35rem);
   text-align: center;
   color: #0f172a;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .subtitle {
@@ -131,6 +134,11 @@ body,
   font-weight: 600;
   color: #334155;
   font-size: 0.93rem;
+}
+
+.field.align-control-row .label-with-tooltip {
+  min-height: 2.65rem;
+  align-items: flex-start;
 }
 
 .field input,
@@ -695,6 +703,28 @@ th {
   gap: 0.75rem;
 }
 
+.learn-suggest-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.75rem;
+}
+
+.learn-suggest-item h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.96rem;
+}
+
+.learn-suggest-item p {
+  margin: 0.42rem 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 .upcoming-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -711,6 +741,7 @@ th {
   max-width: 320px;
   text-decoration: none;
   color: inherit;
+  min-width: 0;
 }
 
 .upcoming-card {
@@ -719,6 +750,7 @@ th {
   background: #f8faff;
   padding: 0.75rem;
   opacity: 0.85;
+  min-width: 0;
 }
 
 .upcoming-card-active {
@@ -1030,6 +1062,21 @@ button.tag-chip:hover {
   padding: 0 1rem;
   font-size: 0.95rem;
   text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .upcoming-grid,
+  .upcoming-grid-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .upcoming-grid-compact {
+    justify-content: stretch;
+  }
+
+  .upcoming-card-link {
+    max-width: none;
+  }
 }
 
 @media (min-width: 880px) {

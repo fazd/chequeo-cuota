@@ -37,7 +37,9 @@ export function buildLoanSummary(projection: LoanProjection): LoanSummary {
     interestPct,
     principalPct,
     insurancePct,
-    alertDifferenceAbove1Pct: Math.abs(projection.installmentDifferencePct) > 1,
+    alertDifferenceAbove1Pct:
+      projection.bankComparisonAvailable &&
+      Math.abs(projection.installmentDifferencePct) > 1,
     monthsReduced: projection.monthsReduced,
     interestSavingsFromPrepayments: projection.interestSavingsFromPrepayments,
   }

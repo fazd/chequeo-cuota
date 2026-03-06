@@ -2,7 +2,7 @@ export interface LoanInput {
   principal: number
   annualEffectiveRate: number
   termMonths: number
-  bankMonthlyPayment: number
+  bankMonthlyPayment?: number
   monthlyInsurance?: number
   monthlyLifeInsuranceRate?: number
   bankPaymentIncludesInsurance: boolean
@@ -31,6 +31,7 @@ export interface LoanProjection {
   totalPaid: number
   theoreticalInstallmentExInsurance: number
   theoreticalInstallmentInclInsurance: number
+  bankComparisonAvailable: boolean
   bankInstallmentNormalized: number
   installmentDifference: number
   installmentDifferencePct: number

@@ -65,6 +65,8 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
     termMonthsValue > 0 &&
     form.extraordinaryRows.length < termMonthsValue
   const showInsuranceCard = form.bankPaymentIncludesInsurance === 'true'
+  const insuranceBadge = '2'
+  const extraPaymentsBadge = showInsuranceCard ? '3' : '2'
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -105,7 +107,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
     const principal = parseMoneyInputValue(form.principal)
     const rateInputPct = Number(form.rateValuePct)
     const termMonths = Number(form.termMonths)
-    const bankMonthlyPayment = parseMoneyInputValue(form.bankMonthlyPayment)
+    const bankMonthlyPayment = parseOptionalMoneyInputValue(form.bankMonthlyPayment)
     const annualEffectiveRate = toEffectiveAnnualRate(form.rateType, rateInputPct)
 
     const insuranceEnabled = form.bankPaymentIncludesInsurance === 'true'
@@ -123,7 +125,6 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       !Number.isFinite(rateInputPct) ||
       !Number.isFinite(annualEffectiveRate) ||
       !Number.isFinite(termMonths) ||
-      !Number.isFinite(bankMonthlyPayment) ||
       !Number.isFinite(monthlyInsurance) ||
       !Number.isFinite(monthlyLifeInsuranceRatePct)
     ) {
@@ -135,8 +136,15 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       setError('Saldo, tasa y plazo deben ser mayores que cero.')
       return
     }
-    if (bankMonthlyPayment <= 0 || monthlyInsurance < 0) {
-      setError('Cuota banco debe ser > 0 y seguro fijo debe ser >= 0.')
+    if (
+      bankMonthlyPayment !== undefined &&
+      (!Number.isFinite(bankMonthlyPayment) || bankMonthlyPayment <= 0)
+    ) {
+      setError('Si ingresas la cuota banco, debe ser mayor que cero.')
+      return
+    }
+    if (monthlyInsurance < 0) {
+      setError('El seguro fijo debe ser >= 0.')
       return
     }
     if (monthlyLifeInsuranceRatePct < 0) {
@@ -297,11 +305,11 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
             />
           </div>
 
-          <div className="field">
+          <div className="field align-control-row">
             <LabelWithTooltip
               htmlFor="bankMonthlyPayment"
-              label="Cuota mensual actual del banco"
-              tooltip="Valor total que pagas hoy cada mes segun tu recibo del banco."
+              label="Cuota mensual actual del banco (opcional)"
+              tooltip="Si la conoces, la usamos para comparar contra la cuota teorica."
             />
             <MoneyInput
               id="bankMonthlyPayment"
@@ -310,7 +318,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
             />
           </div>
 
-          <div className="field">
+          <div className="field align-control-row">
             <LabelWithTooltip
               htmlFor="bankPaymentIncludesInsurance"
               label="La cuota banco incluye seguros"
@@ -332,7 +340,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
 
       {showInsuranceCard ? (
         <SectionCard
-          badge="2"
+          badge={insuranceBadge}
           title="Seguros"
           description="Configura los seguros asociados a tu credito."
         >
@@ -407,7 +415,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       ) : null}
 
       <SectionCard
-        badge="3"
+        badge={extraPaymentsBadge}
         title="Aportes adicionales"
         description="Define tu estrategia de abonos periodicos o extraordinarios."
       >
@@ -699,6 +707,14 @@ function parseMoneyInputValue(rawValue: string): number {
 
   const normalized = rawValue.replace(/\./g, '').replace(/\s/g, '').replace(',', '.')
   return Number(normalized)
+}
+
+function parseOptionalMoneyInputValue(rawValue: string): number | undefined {
+  if (rawValue.trim() === '') {
+    return undefined
+  }
+
+  return parseMoneyInputValue(rawValue)
 }
 
 function parseExtraordinaryRows(
