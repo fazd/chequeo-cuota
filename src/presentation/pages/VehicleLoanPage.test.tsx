@@ -1,9 +1,8 @@
 /** @vitest-environment jsdom */
 import { afterEach, describe, expect, it } from 'vitest'
-import { act } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { VehicleLoanPage } from './VehicleLoanPage'
-import { clickTextButton, inputText, renderInDom, selectRadio } from '../../test/domTestUtils'
+import { inputText, renderInDom } from '../../test/domTestUtils'
 
 let cleanupRef: (() => void) | null = null
 

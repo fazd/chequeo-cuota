@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { PayrollLoanPage } from './PayrollLoanPage'
-import { clickTextButton, inputText, renderInDom, selectRadio } from '../../test/domTestUtils'
+import { inputText, renderInDom } from '../../test/domTestUtils'
 
 let cleanupRef: (() => void) | null = null
 
