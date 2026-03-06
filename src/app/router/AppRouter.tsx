@@ -8,6 +8,16 @@ const MortgageAmortizationPage = lazy(() =>
     default: m.MortgageAmortizationPage,
   })),
 )
+const VehicleLoanPage = lazy(() =>
+  import('../../presentation/pages/VehicleLoanPage').then((m) => ({
+    default: m.VehicleLoanPage,
+  })),
+)
+const PayrollLoanPage = lazy(() =>
+  import('../../presentation/pages/PayrollLoanPage').then((m) => ({
+    default: m.PayrollLoanPage,
+  })),
+)
 const BlogIndexPage = lazy(() => import('../../presentation/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('../../presentation/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })))
 const AboutPage = lazy(() => import('../../presentation/pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -42,6 +52,8 @@ export function AppRouter() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/amortizacion-credito-vivienda" element={<MortgageAmortizationPage />} />
+            <Route path="/amortizacion-credito-vehicular" element={<VehicleLoanPage />} />
+            <Route path="/amortizacion-credito-libranza" element={<PayrollLoanPage />} />
             <Route path="/blog" element={<BlogIndexPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/sobre" element={<AboutPage />} />

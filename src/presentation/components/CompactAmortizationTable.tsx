@@ -1,0 +1,50 @@
+import { formatCop } from '../../utils/currency'
+
+interface RowLike {
+  month: number
+  beginningBalance: number
+  interest: number
+  principalPayment: number
+  extraPayment: number
+  totalPayment: number
+  endingBalance: number
+}
+
+interface CompactAmortizationTableProps {
+  rows: RowLike[]
+}
+
+export function CompactAmortizationTable({ rows }: CompactAmortizationTableProps) {
+  return (
+    <section className="panel section">
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mes</th>
+              <th>Saldo inicial</th>
+              <th>Interes</th>
+              <th>Capital</th>
+              <th>Abono extra</th>
+              <th>Pago total</th>
+              <th>Saldo final</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.month}>
+                <td>{row.month}</td>
+                <td>{formatCop(row.beginningBalance)}</td>
+                <td>{formatCop(row.interest)}</td>
+                <td>{formatCop(row.principalPayment)}</td>
+                <td>{formatCop(row.extraPayment)}</td>
+                <td>{formatCop(row.totalPayment)}</td>
+                <td>{formatCop(row.endingBalance)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}

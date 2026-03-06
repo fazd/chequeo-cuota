@@ -5,6 +5,9 @@ const navItems = [
   { to: '/', label: 'Inicio' },
   { to: '/blog', label: 'Blog' },
   { to: '/sobre', label: 'Sobre' },
+  { to: '/amortizacion-credito-vivienda', label: 'Credito vivienda' },
+  { to: '/amortizacion-credito-vehicular', label: 'Credito vehicular' },
+  { to: '/amortizacion-credito-libranza', label: 'Credito libranza' },
 ]
 
 export function Navbar() {
@@ -51,13 +54,6 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          <Link
-            to="/amortizacion-credito-vivienda"
-            className="site-nav-cta"
-            onClick={() => setOpen(false)}
-          >
-            Amortizacion vivienda
-          </Link>
         </nav>
       </div>
     </header>

@@ -37,22 +37,20 @@ export function Home() {
 
         <section className="landing-block">
           <h2 className="landing-title">Prueba</h2>
-          <div className="upcoming-grid upcoming-grid-compact">
-            {activeCalculators
-              .filter((calculator) => calculator.id === 'hipotecario')
-              .map((calculator) => (
-                <Link
-                  key={calculator.id}
-                  to="/amortizacion-credito-vivienda"
-                  className="upcoming-card-link"
-                >
-                  <article className="upcoming-card upcoming-card-active">
-                    <h3>Amortizacion de credito de vivienda</h3>
-                    <p>{calculator.description}</p>
-                    <span>Ir a calculadora</span>
-                  </article>
-                </Link>
-              ))}
+          <div className="upcoming-grid">
+            {activeCalculators.map((calculator) => (
+              <Link
+                key={calculator.id}
+                to={calculator.path}
+                className="upcoming-card-link"
+              >
+                <article className="upcoming-card upcoming-card-active">
+                  <h3>{calculator.name}</h3>
+                  <p>{calculator.description}</p>
+                  <span>Ir a calculadora</span>
+                </article>
+              </Link>
+            ))}
           </div>
         </section>
 

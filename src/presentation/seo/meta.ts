@@ -16,6 +16,20 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     canonical: buildCanonical('/amortizacion-credito-vivienda'),
     ogType: 'website',
   },
+  vehicleLoan: {
+    title: 'Amortizacion credito vehicular - Mis Finanzas Claras',
+    description:
+      'Calcula cuota, tabla de amortizacion y compara escenarios para tu credito vehicular.',
+    canonical: buildCanonical('/amortizacion-credito-vehicular'),
+    ogType: 'website',
+  },
+  payrollLoan: {
+    title: 'Amortizacion credito de libranza - Mis Finanzas Claras',
+    description:
+      'Simula tu credito de libranza y evalua cuota, plazo e intereses con abonos periodicos.',
+    canonical: buildCanonical('/amortizacion-credito-libranza'),
+    ogType: 'website',
+  },
   blogIndex: {
     title: 'Blog de educacion financiera - Mis Finanzas Claras',
     description:
