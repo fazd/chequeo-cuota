@@ -222,7 +222,7 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
           <div className="field">
             <LabelWithTooltip
               htmlFor="principal"
-              label="Saldo actual"
+              label="Saldo pendiente del credito"
               tooltip="Capital pendiente por pagar al banco en este momento."
             />
             <MoneyInput
