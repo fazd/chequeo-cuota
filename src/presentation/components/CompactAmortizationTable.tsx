@@ -6,6 +6,9 @@ interface RowLike {
   interest: number
   principalPayment: number
   extraPayment: number
+  baseInsurance: number
+  lifeInsurance: number
+  insurance: number
   totalPayment: number
   endingBalance: number
 }
@@ -26,6 +29,9 @@ export function CompactAmortizationTable({ rows }: CompactAmortizationTableProps
               <th>Interes</th>
               <th>Capital</th>
               <th>Abono extra</th>
+              <th>Seguro base</th>
+              <th>Seguro vida</th>
+              <th>Seguros total</th>
               <th>Pago total</th>
               <th>Saldo final</th>
             </tr>
@@ -38,6 +44,9 @@ export function CompactAmortizationTable({ rows }: CompactAmortizationTableProps
                 <td>{formatCop(row.interest)}</td>
                 <td>{formatCop(row.principalPayment)}</td>
                 <td>{formatCop(row.extraPayment)}</td>
+                <td>{formatCop(row.baseInsurance)}</td>
+                <td>{formatCop(row.lifeInsurance)}</td>
+                <td>{formatCop(row.insurance)}</td>
                 <td>{formatCop(row.totalPayment)}</td>
                 <td>{formatCop(row.endingBalance)}</td>
               </tr>

@@ -21,13 +21,13 @@ describe('VehicleLoanPage functional', () => {
     cleanupRef = rendered.cleanup
 
     inputText('principal', '90.000.000')
-    inputText('annualEffectiveRatePct', '16')
+    inputText('rateValuePct', '16')
     inputText('termMonths', '72')
     inputText('bankMonthlyPayment', '2.050.000')
 
     clickTextButton('Calcular plan de pagos')
 
-    expect(rendered.container.textContent).toContain('Cuota teorica')
+    expect(rendered.container.textContent).toContain('Cuota teorica sin seguro')
     expect(rendered.container.textContent).toContain('Total intereses')
     expect(rendered.container.textContent).toContain('Exportar tabla CSV')
   })

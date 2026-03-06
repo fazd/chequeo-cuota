@@ -88,7 +88,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
         </div>
 
         <div className="chart-card">
-          <h3 className="chart-title">Distribucion mensual: interes vs capital</h3>
+          <h3 className="chart-title">Distribucion mensual: interes vs capital vs seguros</h3>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={schedule} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
@@ -103,6 +103,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
                 <Legend />
                 <Bar dataKey="interest" fill="#ef8354" name="Interes" />
                 <Bar dataKey="principalPayment" fill="#2d6a4f" name="Capital" />
+                <Bar dataKey="insurance" fill="#6b7280" name="Seguros" />
               </BarChart>
             </ResponsiveContainer>
           </div>

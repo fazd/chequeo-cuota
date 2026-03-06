@@ -20,9 +20,12 @@ export interface StandardLoanFormInput {
   }
 }
 
+type RateType = 'effectiveAnnual' | 'nominalDue'
+
 interface FormState {
   principal: string
   annualEffectiveRatePct: string
+  rateType: RateType
   termMonths: string
   bankMonthlyPayment: string
   bankPaymentIncludesInsurance: string
@@ -38,6 +41,7 @@ interface FormState {
 const initialState: FormState = {
   principal: '',
   annualEffectiveRatePct: '',
+  rateType: 'effectiveAnnual',
   termMonths: '',
   bankMonthlyPayment: '',
   bankPaymentIncludesInsurance: 'false',
@@ -62,7 +66,8 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
     event.preventDefault()
 
     const principal = parseMoneyInputValue(form.principal)
-    const annualEffectiveRatePct = Number(form.annualEffectiveRatePct)
+    const rateInputPct = Number(form.annualEffectiveRatePct)
+    const annualEffectiveRate = toEffectiveAnnualRate(form.rateType, rateInputPct)
     const termMonths = Number(form.termMonths)
     const bankMonthlyPayment = parseOptionalMoneyInputValue(form.bankMonthlyPayment)
     const insuranceEnabled = form.bankPaymentIncludesInsurance === 'true'
@@ -77,7 +82,8 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
 
     if (
       !Number.isFinite(principal) ||
-      !Number.isFinite(annualEffectiveRatePct) ||
+      !Number.isFinite(rateInputPct) ||
+      !Number.isFinite(annualEffectiveRate) ||
       !Number.isFinite(termMonths) ||
       !Number.isFinite(monthlyInsurance) ||
       !Number.isFinite(monthlyLifeInsuranceRatePct)
@@ -86,7 +92,7 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
       return
     }
 
-    if (principal <= 0 || annualEffectiveRatePct <= 0 || termMonths <= 0) {
+    if (principal <= 0 || annualEffectiveRate <= 0 || termMonths <= 0) {
       setError('Saldo, tasa y plazo deben ser mayores que cero.')
       return
     }
@@ -127,7 +133,7 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
     setError(null)
     onCalculate({
       principal,
-      annualEffectiveRate: annualEffectiveRatePct / 100,
+      annualEffectiveRate,
       termMonths,
       bankMonthlyPayment,
       monthlyInsurance,
@@ -168,7 +174,37 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
             </div>
 
             <div className="field">
-              <label htmlFor="annualEffectiveRatePct">Tasa efectiva anual (%)</label>
+              <label>Tipo de tasa</label>
+              <div className="choice-group choice-group-inline">
+                <label className="choice-item">
+                  <input
+                    type="radio"
+                    name="rateType"
+                    value="nominalDue"
+                    checked={form.rateType === 'nominalDue'}
+                    onChange={(event) =>
+                      updateField('rateType', event.target.value as RateType)
+                    }
+                  />
+                  Tasa nominal vencida
+                </label>
+                <label className="choice-item">
+                  <input
+                    type="radio"
+                    name="rateType"
+                    value="effectiveAnnual"
+                    checked={form.rateType === 'effectiveAnnual'}
+                    onChange={(event) =>
+                      updateField('rateType', event.target.value as RateType)
+                    }
+                  />
+                  Tasa efectiva anual
+                </label>
+              </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="annualEffectiveRatePct">Valor de la tasa (%)</label>
               <input
                 id="annualEffectiveRatePct"
                 type="number"
@@ -401,4 +437,15 @@ function parseOptionalMoneyInputValue(rawValue: string): number | undefined {
   }
 
   return parseMoneyInputValue(rawValue)
+}
+
+function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {
+  const rateDecimal = ratePct / 100
+
+  if (rateType === 'effectiveAnnual') {
+    return rateDecimal
+  }
+
+  const monthlyNominalDue = rateDecimal / 12
+  return Math.pow(1 + monthlyNominalDue, 12) - 1
 }
