@@ -49,6 +49,7 @@ export interface ExtraPayment {
 export interface ConstantExtraPayment {
   amount: number
   everyNMonths: number
+  occurrences?: number
 }
 
 

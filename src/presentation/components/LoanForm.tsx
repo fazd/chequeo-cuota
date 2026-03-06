@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
-import type { ExtraPayment, LoanInput } from '../../domain/loan.types'
+import type { LoanInput } from '../../domain/loan.types'
 import { trackCalculoRealizado } from '../../application/analytics/events'
 interface LoanFormProps {
   onCalculate: (input: LoanInput) => void
@@ -12,8 +12,6 @@ interface ExtraordinaryRow {
 }
 
 type RateType = 'effectiveAnnual' | 'nominalDue'
-type ExtraPaymentGoal = 'reduceTerm' | 'reduceInstallment'
-type ExtraPaymentMode = 'periodic' | 'extraordinary'
 
 interface FormState {
   principal: string
@@ -26,12 +24,11 @@ interface FormState {
   monthlyInsurance: string
   hasVariableInsurance: boolean
   monthlyLifeInsuranceRatePct: string
-  wantsExtraPayments: boolean
-  extraPaymentGoal: ExtraPaymentGoal
-  extraPaymentMode: ExtraPaymentMode
+  wantsPeriodicExtraPayments: boolean
   periodicExtraAmount: string
   periodicExtraEveryMonths: string
   periodicExtraOccurrences: string
+  wantsExtraordinaryExtraPayments: boolean
   extraordinaryRows: ExtraordinaryRow[]
 }
 
@@ -46,12 +43,11 @@ const initialState: FormState = {
   monthlyInsurance: '',
   hasVariableInsurance: false,
   monthlyLifeInsuranceRatePct: '',
-  wantsExtraPayments: false,
-  extraPaymentGoal: 'reduceTerm',
-  extraPaymentMode: 'periodic',
+  wantsPeriodicExtraPayments: false,
   periodicExtraAmount: '',
   periodicExtraEveryMonths: '',
   periodicExtraOccurrences: '',
+  wantsExtraordinaryExtraPayments: false,
   extraordinaryRows: [],
 }
 
@@ -152,11 +148,43 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       return
     }
 
-    const extraPaymentsParsed = parseExtraPayments(form, termMonths)
-    if (extraPaymentsParsed.error) {
-      setError(extraPaymentsParsed.error)
-      return
+    let constantExtraPayment: LoanInput['constantExtraPayment']
+    if (form.wantsPeriodicExtraPayments) {
+      const amount = parseMoneyInputValue(form.periodicExtraAmount)
+      const everyNMonths = Number(form.periodicExtraEveryMonths)
+      const occurrences = form.periodicExtraOccurrences.trim() === '' ? undefined : Number(form.periodicExtraOccurrences)
+
+      if (!Number.isFinite(amount) || !Number.isFinite(everyNMonths)) {
+        setError('Completa monto y frecuencia de abono periodico.')
+        return
+      }
+      if (amount <= 0 || !Number.isInteger(everyNMonths) || everyNMonths <= 0) {
+        setError('El abono periodico debe tener monto > 0 y frecuencia entera > 0.')
+        return
+      }
+      if (occurrences !== undefined && (!Number.isInteger(occurrences) || occurrences <= 0)) {
+        setError('Las ocurrencias deben ser un entero mayor que 0.')
+        return
+      }
+
+      constantExtraPayment = { amount, everyNMonths, occurrences }
     }
+
+    const extraordinaryExtraPayments = form.wantsExtraordinaryExtraPayments
+      ? form.extraordinaryRows
+          .map((row) => ({
+            month: Number(row.month),
+            amount: parseMoneyInputValue(row.amount),
+          }))
+          .filter(
+            (item) =>
+              Number.isFinite(item.month) &&
+              Number.isFinite(item.amount) &&
+              item.month >= 1 &&
+              item.month <= termMonths &&
+              item.amount > 0,
+          )
+      : []
 
     setError(null)
     trackCalculoRealizado()
@@ -169,7 +197,8 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       monthlyInsurance,
       monthlyLifeInsuranceRate: monthlyLifeInsuranceRatePct / 100,
       bankPaymentIncludesInsurance: insuranceEnabled,
-      extraordinaryExtraPayments: extraPaymentsParsed.payments,
+      constantExtraPayment,
+      extraordinaryExtraPayments,
     })
   }
 
@@ -417,164 +446,101 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       <SectionCard
         badge={extraPaymentsBadge}
         title="Aportes adicionales"
-        description="Define tu estrategia de abonos periodicos o extraordinarios."
+        description="Define tu estrategia de abonos periodicos y/o extraordinarios."
       >
         <div className="choice-with-tip">
-          <label className="choice-item" htmlFor="wantsExtraPayments">
+          <label className="choice-item" htmlFor="wantsPeriodicExtraPayments">
             <input
-              id="wantsExtraPayments"
+              id="wantsPeriodicExtraPayments"
               type="checkbox"
-              checked={form.wantsExtraPayments}
+              checked={form.wantsPeriodicExtraPayments}
               onChange={(event) =>
-                updateField('wantsExtraPayments', event.target.checked)
+                updateField('wantsPeriodicExtraPayments', event.target.checked)
+              }
+            />
+            Quiero hacer abonos periodicos
+          </label>
+          <TooltipInfo text="Abonos que se repiten cada ciertos meses." />
+        </div>
+
+        {form.wantsPeriodicExtraPayments ? (
+          <div className="form-grid form-grid-three">
+            <div className="field">
+              <LabelWithTooltip
+                htmlFor="periodicExtraAmount"
+                label="Monto del abono"
+                tooltip="Valor adicional que pagas periodicamente."
+              />
+              <MoneyInput
+                id="periodicExtraAmount"
+                value={form.periodicExtraAmount}
+                onChange={(value) => updateField('periodicExtraAmount', value)}
+              />
+            </div>
+            <div className="field">
+              <LabelWithTooltip
+                htmlFor="periodicExtraEveryMonths"
+                label="Cada cuantos meses"
+                tooltip="Frecuencia de los abonos periodicos."
+              />
+              <input
+                id="periodicExtraEveryMonths"
+                type="number"
+                min={1}
+                step={1}
+                value={form.periodicExtraEveryMonths}
+                onChange={(event) =>
+                  updateField('periodicExtraEveryMonths', event.target.value)
+                }
+              />
+            </div>
+            <div className="field">
+              <LabelWithTooltip
+                htmlFor="periodicExtraOccurrences"
+                label="Cuantas veces (opcional)"
+                tooltip="Numero maximo de abonos periodicos. Si se deja vacio, se aplican hasta el final del credito."
+              />
+              <input
+                id="periodicExtraOccurrences"
+                type="number"
+                min={1}
+                step={1}
+                value={form.periodicExtraOccurrences}
+                onChange={(event) =>
+                  updateField('periodicExtraOccurrences', event.target.value)
+                }
+              />
+            </div>
+          </div>
+        ) : null}
+
+        <div className="choice-with-tip">
+          <label className="choice-item" htmlFor="wantsExtraordinaryExtraPayments">
+            <input
+              id="wantsExtraordinaryExtraPayments"
+              type="checkbox"
+              checked={form.wantsExtraordinaryExtraPayments}
+              onChange={(event) =>
+                updateField('wantsExtraordinaryExtraPayments', event.target.checked)
               }
             />
             Quiero hacer abonos extraordinarios
           </label>
-          <TooltipInfo text="Activa para proyectar pagos adicionales al credito." />
+          <TooltipInfo text="Abonos puntuales en meses especificos." />
         </div>
 
-        {form.wantsExtraPayments ? (
+        {form.wantsExtraordinaryExtraPayments ? (
           <>
-            <p className="helper-text">
-              Tipos: abono para reducir cuota o abono para reducir tiempo.
-            </p>
-
-            <div className="choice-group choice-group-inline">
-              <label className="choice-item">
-                <input
-                  type="radio"
-                  name="extraPaymentGoal"
-                  value="reduceInstallment"
-                  checked={form.extraPaymentGoal === 'reduceInstallment'}
-                  onChange={(event) =>
-                    updateField(
-                      'extraPaymentGoal',
-                      event.target.value as ExtraPaymentGoal,
-                    )
-                  }
-                />
-                Reducir cuota
-                <TooltipInfo text="Objetivo de bajar el valor mensual a pagar." />
-              </label>
-              <label className="choice-item">
-                <input
-                  type="radio"
-                  name="extraPaymentGoal"
-                  value="reduceTerm"
-                  checked={form.extraPaymentGoal === 'reduceTerm'}
-                  onChange={(event) =>
-                    updateField('extraPaymentGoal', event.target.value as ExtraPaymentGoal)
-                  }
-                />
-                Reducir tiempo
-                <TooltipInfo text="Objetivo de terminar el credito en menos meses." />
-              </label>
-            </div>
-
-            {form.extraPaymentGoal === 'reduceInstallment' ? (
-              <p className="helper-text helper-note">
-                Nota: el calculo actual aplica los abonos reduciendo tiempo.
-              </p>
+            {activeExtraRows}
+            {canAddExtraordinary ? (
+              <button
+                type="button"
+                className="btn-secondary btn-small"
+                onClick={addExtraordinaryRow}
+              >
+                + Agregar abono extraordinario
+              </button>
             ) : null}
-
-            <div className="field">
-              <FieldLegend
-                label="Tipo de registro"
-                tooltip="Elige si los aportes se repiten con una frecuencia o si los defines por mes."
-              />
-              <div className="choice-group choice-group-inline">
-                <label className="choice-item">
-                  <input
-                    type="radio"
-                    name="extraPaymentMode"
-                    value="periodic"
-                    checked={form.extraPaymentMode === 'periodic'}
-                    onChange={(event) =>
-                      updateField('extraPaymentMode', event.target.value as ExtraPaymentMode)
-                    }
-                  />
-                  Abono periodico
-                </label>
-                <label className="choice-item">
-                  <input
-                    type="radio"
-                    name="extraPaymentMode"
-                    value="extraordinary"
-                    checked={form.extraPaymentMode === 'extraordinary'}
-                    onChange={(event) =>
-                      updateField('extraPaymentMode', event.target.value as ExtraPaymentMode)
-                    }
-                  />
-                  Abono extraordinario
-                </label>
-              </div>
-            </div>
-
-            {form.extraPaymentMode === 'periodic' ? (
-              <div className="form-grid form-grid-three">
-                <div className="field">
-                  <LabelWithTooltip
-                    htmlFor="periodicExtraAmount"
-                    label="Monto de abono"
-                    tooltip="Valor adicional que se pagara en cada aporte periodico."
-                  />
-                  <MoneyInput
-                    id="periodicExtraAmount"
-                    value={form.periodicExtraAmount}
-                    onChange={(value) => updateField('periodicExtraAmount', value)}
-                  />
-                </div>
-                <div className="field">
-                  <LabelWithTooltip
-                    htmlFor="periodicExtraEveryMonths"
-                    label="Cada cuantos meses"
-                    tooltip="Frecuencia de los aportes: 1 mensual, 3 trimestral, etc."
-                  />
-                  <input
-                    id="periodicExtraEveryMonths"
-                    type="number"
-                    min={1}
-                    step={1}
-                    value={form.periodicExtraEveryMonths}
-                    onChange={(event) =>
-                      updateField('periodicExtraEveryMonths', event.target.value)
-                    }
-                  />
-                </div>
-                <div className="field">
-                  <LabelWithTooltip
-                    htmlFor="periodicExtraOccurrences"
-                    label="Cuantas veces"
-                    tooltip="Numero total de aportes periodicos que haras."
-                  />
-                  <input
-                    id="periodicExtraOccurrences"
-                    type="number"
-                    min={1}
-                    step={1}
-                    value={form.periodicExtraOccurrences}
-                    onChange={(event) =>
-                      updateField('periodicExtraOccurrences', event.target.value)
-                    }
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="section section-tight">
-                <div className="mini-actions">
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={addExtraordinaryRow}
-                    disabled={!canAddExtraordinary}
-                  >
-                    Agregar aporte
-                  </button>
-                </div>
-                <div className="section section-tight">{activeExtraRows}</div>
-              </div>
-            )}
           </>
         ) : null}
       </SectionCard>
@@ -715,110 +681,6 @@ function parseOptionalMoneyInputValue(rawValue: string): number | undefined {
   }
 
   return parseMoneyInputValue(rawValue)
-}
-
-function parseExtraordinaryRows(
-  rows: ExtraordinaryRow[],
-  termMonths: number,
-): { payments: ExtraPayment[]; error: string | null } {
-  const payments: ExtraPayment[] = []
-
-  for (const row of rows) {
-    const hasMonth = row.month.trim() !== ''
-    const hasAmount = row.amount.trim() !== ''
-    if (!hasMonth && !hasAmount) {
-      continue
-    }
-    if (!hasMonth || !hasAmount) {
-      return {
-        payments: [],
-        error: 'Cada abono extraordinario debe tener mes y monto.',
-      }
-    }
-
-    const month = Number(row.month)
-    const amount = parseMoneyInputValue(row.amount)
-
-    if (!Number.isInteger(month) || month < 1 || month > termMonths) {
-      return {
-        payments: [],
-        error: `El mes de abono extraordinario debe estar entre 1 y ${termMonths}.`,
-      }
-    }
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return {
-        payments: [],
-        error: 'El monto del abono extraordinario debe ser mayor que cero.',
-      }
-    }
-
-    payments.push({ month, amount })
-  }
-
-  return { payments, error: null }
-}
-
-function parseExtraPayments(
-  form: FormState,
-  termMonths: number,
-): { payments: ExtraPayment[]; error: string | null } {
-  if (!form.wantsExtraPayments) {
-    return { payments: [], error: null }
-  }
-
-  if (form.extraPaymentMode === 'periodic') {
-    const amount = parseMoneyInputValue(form.periodicExtraAmount)
-    const everyMonths = Number(form.periodicExtraEveryMonths)
-    const occurrences = Number(form.periodicExtraOccurrences)
-
-    if (
-      !Number.isFinite(amount) ||
-      !Number.isFinite(everyMonths) ||
-      !Number.isFinite(occurrences)
-    ) {
-      return {
-        payments: [],
-        error: 'Completa monto, periodicidad y cuantas veces del abono periodico.',
-      }
-    }
-
-    if (amount <= 0) {
-      return {
-        payments: [],
-        error: 'El monto del abono periodico debe ser mayor que cero.',
-      }
-    }
-    if (!Number.isInteger(everyMonths) || everyMonths <= 0) {
-      return {
-        payments: [],
-        error: 'La periodicidad del abono periodico debe ser un entero mayor que cero.',
-      }
-    }
-    if (!Number.isInteger(occurrences) || occurrences <= 0) {
-      return {
-        payments: [],
-        error: 'La cantidad de veces del abono periodico debe ser un entero mayor que cero.',
-      }
-    }
-
-    const payments: ExtraPayment[] = []
-    for (let index = 1; index <= occurrences; index += 1) {
-      const month = index * everyMonths
-      if (month > termMonths) {
-        return {
-          payments: [],
-          error:
-            'La configuracion del abono periodico excede el plazo restante. Ajusta periodicidad o cuantas veces.',
-        }
-      }
-
-      payments.push({ month, amount })
-    }
-
-    return { payments, error: null }
-  }
-
-  return parseExtraordinaryRows(form.extraordinaryRows, termMonths)
 }
 
 function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {

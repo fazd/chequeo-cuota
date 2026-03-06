@@ -123,12 +123,15 @@ function buildExtraPaymentMap(
     constantExtraPayment.amount > 0 &&
     constantExtraPayment.everyNMonths > 0
   ) {
+    const maxOccurrences = constantExtraPayment.occurrences ?? Infinity
+    let count = 0
     for (
       let month = constantExtraPayment.everyNMonths;
-      month <= termMonths;
+      month <= termMonths && count < maxOccurrences;
       month += constantExtraPayment.everyNMonths
     ) {
       map.set(month, (map.get(month) ?? 0) + constantExtraPayment.amount)
+      count++
     }
   }
 
