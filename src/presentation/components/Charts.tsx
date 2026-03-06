@@ -24,6 +24,11 @@ interface BalanceChartRow {
   balanceWithoutExtras?: number
 }
 
+const copTickFormatter = new Intl.NumberFormat('es-CO', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})
+
 export function Charts({ schedule, baselineSchedule }: ChartsProps) {
   const hasExtraPayments = schedule.some((row) => row.extraPayment > 0)
   const balanceChartData = buildBalanceChartData(schedule, baselineSchedule)
@@ -31,47 +36,53 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
   return (
     <section className="panel section">
       <div className="chart-grid">
-        <div style={{ width: '100%', height: 300 }}>
-          <ResponsiveContainer>
-            <LineChart data={balanceChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={formatCurrencyTick} />
-              <Tooltip formatter={formatTooltipCurrency} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="balanceWithExtras"
-                stroke="#0b5ed7"
-                name="Saldo (con aportes)"
-                dot={false}
-              />
-              {hasExtraPayments ? (
+        <div className="chart-card">
+          <h3 className="chart-title">Evolucion del saldo pendiente</h3>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <LineChart data={balanceChartData} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tickMargin={8} />
+                <YAxis tickFormatter={formatCurrencyTick} tickMargin={8} width={96} />
+                <Tooltip formatter={formatTooltipCurrency} />
+                <Legend />
                 <Line
                   type="monotone"
-                  dataKey="balanceWithoutExtras"
-                  stroke="#6b7280"
-                  strokeDasharray="4 4"
-                  name="Saldo (sin aportes)"
+                  dataKey="balanceWithExtras"
+                  stroke="#0b5ed7"
+                  name="Saldo (con aportes)"
                   dot={false}
                 />
-              ) : null}
-            </LineChart>
-          </ResponsiveContainer>
+                {hasExtraPayments ? (
+                  <Line
+                    type="monotone"
+                    dataKey="balanceWithoutExtras"
+                    stroke="#6b7280"
+                    strokeDasharray="4 4"
+                    name="Saldo (sin aportes)"
+                    dot={false}
+                  />
+                ) : null}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div style={{ width: '100%', height: 300 }}>
-          <ResponsiveContainer>
-            <BarChart data={schedule}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={formatCurrencyTick} />
-              <Tooltip formatter={formatTooltipCurrency} />
-              <Legend />
-              <Bar dataKey="interest" fill="#ef8354" name="Interes" />
-              <Bar dataKey="principalPayment" fill="#2d6a4f" name="Capital" />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="chart-card">
+          <h3 className="chart-title">Distribucion mensual: interes vs capital</h3>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <BarChart data={schedule} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tickMargin={8} />
+                <YAxis tickFormatter={formatCurrencyTick} tickMargin={8} width={96} />
+                <Tooltip formatter={formatTooltipCurrency} />
+                <Legend />
+                <Bar dataKey="interest" fill="#ef8354" name="Interes" />
+                <Bar dataKey="principalPayment" fill="#2d6a4f" name="Capital" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </section>
@@ -81,15 +92,16 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
 function formatCurrencyTick(value: number | string | undefined): string {
   const numericValue = Number(value)
   if (!Number.isFinite(numericValue)) {
-    return '$ 0,00'
+    return '$0'
   }
-  return formatCop(numericValue)
+
+  return `$${copTickFormatter.format(Math.round(numericValue))}`
 }
 
 function formatTooltipCurrency(value: number | string | undefined): string {
   const numericValue = Number(value)
   if (!Number.isFinite(numericValue)) {
-    return '$ 0,00'
+    return '$0'
   }
   return formatCop(numericValue)
 }
@@ -112,4 +124,3 @@ function buildBalanceChartData(
 
   return rows
 }
-

@@ -32,13 +32,12 @@ export function BlogPostPage() {
   return (
     <article className="app-shell blog-post-wrap">
       <SeoHead meta={meta} />
-      <Link to="/blog" className="text-link">? Volver al blog</Link>
+      <Link to="/blog" className="text-link">&lt; Volver al blog</Link>
       <h1 className="page-title">{post.title}</h1>
-      <p className="blog-meta">{post.date} · {post.readingTime} min lectura</p>
+      <p className="blog-meta">{post.date} - {post.readingTime} min lectura</p>
       <div className="blog-post-content">
         <PostComponent />
       </div>
     </article>
   )
 }
-

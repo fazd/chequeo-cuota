@@ -20,12 +20,13 @@ export function BlogIndexPage() {
 
       <div className="blog-list">
         {posts.map((post) => (
-          <article key={post.slug} className="blog-card">
-            <p className="blog-meta">{post.date} · {post.readingTime} min lectura</p>
-            <h2>{post.title}</h2>
-            <p>{post.excerpt}</p>
-            <Link to={`/blog/${post.slug}`} className="btn-secondary">Leer articulo</Link>
-          </article>
+          <Link key={post.slug} to={`/blog/${post.slug}`} className="blog-card-link">
+            <article className="blog-card">
+              <p className="blog-meta">{post.date} - {post.readingTime} min lectura</p>
+              <h2>{post.title}</h2>
+              <p>{post.excerpt}</p>
+            </article>
+          </Link>
         ))}
       </div>
     </section>

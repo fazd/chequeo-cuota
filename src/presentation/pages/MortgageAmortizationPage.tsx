@@ -1,4 +1,4 @@
-import { useMemo, useState, lazy, Suspense } from 'react'
+import { useMemo, useState, lazy, Suspense, useRef, useEffect } from 'react'
 import { buildLoanSummary } from '../../application/loanSummary'
 import { calculateProjection } from '../../application/calculateProjection'
 import type { LoanInput, LoanProjection } from '../../domain/loan.types'
@@ -14,6 +14,7 @@ const Charts = lazy(() => import('../components/Charts').then((m) => ({ default:
 
 export function MortgageAmortizationPage() {
   const [projection, setProjection] = useState<LoanProjection | null>(null)
+  const resultsRef = useRef<HTMLDivElement | null>(null)
 
   function handleCalculate(input: LoanInput) {
     setProjection(calculateProjection(input))
@@ -27,6 +28,12 @@ export function MortgageAmortizationPage() {
   const showSavingsSummary =
     !!projection &&
     (projection.monthsReduced > 0 || projection.interestSavingsFromPrepayments > 0)
+
+  useEffect(() => {
+    if (projection && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [projection])
 
   return (
     <>
@@ -48,7 +55,7 @@ export function MortgageAmortizationPage() {
         </section>
 
         {projection && summary ? (
-          <>
+          <div ref={resultsRef}>
             <SummaryCards projection={projection} summary={summary} />
             {showSavingsSummary ? (
               <p className="savings-summary">
@@ -66,7 +73,7 @@ export function MortgageAmortizationPage() {
             </Suspense>
             <AmortizationTable rows={projection.schedule} />
             <ExportCSVButton schedule={projection.schedule} />
-          </>
+          </div>
         ) : null}
       </section>
     </>
@@ -81,5 +88,5 @@ function formatMonths(months: number): string {
     return `${months} meses`
   }
 
-  return `${years} años y ${remainingMonths} meses`
+  return `${years} anios y ${remainingMonths} meses`
 }

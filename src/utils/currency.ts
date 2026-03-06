@@ -6,7 +6,7 @@ const copNumberFormatter = new Intl.NumberFormat('es-CO', {
 })
 
 export function formatCop(value: number): string {
-  return `$ ${copNumberFormatter.format(roundTo(value, 2))}`
+  return `$${copNumberFormatter.format(roundTo(value, 2))}`
 }
 
 export function formatPercent(value: number): string {

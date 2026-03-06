@@ -2,6 +2,13 @@
   font-family: 'Segoe UI', 'Inter', 'Noto Sans', sans-serif;
 }
 
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .app-shell {
   max-width: 1100px;
   margin: 0 auto;
@@ -128,6 +135,8 @@
 
 .field input,
 .field select {
+  width: 100%;
+  box-sizing: border-box;
   height: 42px;
   border-radius: 10px;
   border: 1px solid #cdd8e7;
@@ -180,7 +189,7 @@
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(4px);
   min-width: 200px;
   max-width: 260px;
   padding: 0.45rem 0.55rem;
@@ -194,11 +203,14 @@
   visibility: hidden;
   pointer-events: none;
   z-index: 10;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
 }
 
 .tooltip-wrap.is-open .tooltip-content {
   opacity: 1;
   visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0s;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -206,6 +218,29 @@
   .tooltip-wrap:focus-within .tooltip-content {
     opacity: 1;
     visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0s;
+  }
+}
+
+@media (max-width: 640px) {
+  .tooltip-content {
+    position: fixed;
+    left: 0.9rem;
+    right: 0.9rem;
+    bottom: 0.9rem;
+    transform: translateY(8px);
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    font-size: 0.86rem;
+    line-height: 1.35;
+    padding: 0.7rem 0.75rem;
+    box-shadow: 0 16px 28px rgba(2, 6, 23, 0.32);
+  }
+
+  .tooltip-wrap.is-open .tooltip-content {
+    transform: translateY(0);
   }
 }
 
@@ -349,7 +384,9 @@
 }
 
 .btn-wide {
-  min-width: min(100%, 360px);
+  width: min(100%, 360px);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .btn-primary:hover {
@@ -376,6 +413,12 @@
   color: #627d98;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .card p {
@@ -410,6 +453,19 @@
   margin-top: 1rem;
 }
 
+.chart-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.75rem;
+}
+
+.chart-title {
+  margin: 0 0 0.55rem;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
 @media (min-width: 980px) {
   .chart-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -437,6 +493,7 @@ td {
   border-bottom: 1px solid #e4e7eb;
   text-align: right;
   font-size: 0.88rem;
+  white-space: nowrap;
 }
 
 th:first-child,
@@ -723,6 +780,20 @@ th {
   border: 1px solid #dbe4f0;
   border-radius: 12px;
   padding: 0.9rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.blog-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.blog-card-link:hover .blog-card,
+.blog-card-link:focus-visible .blog-card {
+  transform: translateY(-3px);
+  border-color: #a5b4fc;
+  box-shadow: 0 12px 28px rgba(67, 56, 202, 0.14);
 }
 
 .blog-card h2 {
