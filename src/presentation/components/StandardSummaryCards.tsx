@@ -20,6 +20,10 @@ interface StandardSummary {
   totalPaid: number
   monthsReduced: number
   interestSavingsFromPrepayments: number
+  alertDifferenceAbove1Pct: boolean
+  interestPct: number
+  principalPct: number
+  insurancePct: number
 }
 
 export function StandardSummaryCards({ projection, summary }: StandardSummaryCardsProps) {
@@ -51,12 +55,22 @@ export function StandardSummaryCards({ projection, summary }: StandardSummaryCar
         <Metric label="Total intereses" value={formatCop(summary.totalInterest)} />
         <Metric label="Total capital" value={formatCop(summary.totalPrincipal)} />
         <Metric label="Total pagado" value={formatCop(summary.totalPaid)} />
+        <Metric label="% intereses" value={formatPercent(summary.interestPct)} />
+        <Metric label="% capital" value={formatPercent(summary.principalPct)} />
+        <Metric label="% seguros" value={formatPercent(summary.insurancePct)} />
         <Metric
           label="Ahorro de intereses"
           value={formatCop(summary.interestSavingsFromPrepayments)}
         />
         <Metric label="Reduccion de plazo" value={formatMonths(summary.monthsReduced)} />
       </div>
+
+      {summary.alertDifferenceAbove1Pct ? (
+        <div className="alert">
+          Alerta: la diferencia entre la cuota teorica y la cuota del banco supera
+          el 1%.
+        </div>
+      ) : null}
     </section>
   )
 }

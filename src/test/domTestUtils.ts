@@ -38,6 +38,29 @@ export function inputText(id: string, value: string) {
   })
 }
 
+export function selectRadio(name: string, value: string) {
+  const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${value}"]`) as HTMLInputElement | null
+  if (!radio) {
+    throw new Error(`Radio not found: ${name} = ${value}`)
+  }
+
+  act(() => {
+    radio.checked = true
+    radio.dispatchEvent(new Event('change', { bubbles: true }))
+  })
+}
+
+export function submitForm() {
+  const form = document.querySelector('form') as HTMLFormElement | null
+  if (!form) {
+    throw new Error('Form not found')
+  }
+
+  act(() => {
+    form.dispatchEvent(new Event('submit', { bubbles: true }))
+  })
+}
+
 export function clickTextButton(text: string) {
   const buttons = Array.from(document.querySelectorAll('button'))
   const button = buttons.find((node) => node.textContent?.includes(text)) as
