@@ -497,6 +497,36 @@ body,
   padding: 0.75rem;
 }
 
+.chart-container {
+  position: relative;
+}
+
+.chart-tooltip-band {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
+}
+
+.chart-tooltip-band.is-mobile {
+  font-size: 0.74rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.chart-tooltip-title {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.chart-tooltip-line {
+  color: #e2e8f0;
+}
+
 .chart-title {
   margin: 0 0 0.55rem;
   color: var(--color-primary);

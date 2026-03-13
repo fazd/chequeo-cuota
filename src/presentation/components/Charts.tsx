@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { AmortizationRow } from '../../domain/loan.types'
 import { formatCop } from '../../utils/currency'
 
@@ -41,69 +42,89 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
     mediaQuery.addEventListener('change', update)
     return () => mediaQuery.removeEventListener('change', update)
   }, [])
-
-  const hasExtraPayments = schedule.some((row) => row.extraPayment > 0)
+  console.log('schedule', schedule)
+  const hasExtraPayments = schedule.some((row) => row.extraPayment > 0.01)
   const balanceChartData = buildBalanceChartData(schedule, baselineSchedule)
+  const hasInsurance = schedule.some((row) => row.insurance > 0)
+
+  const monthlyDistribution = hasInsurance ? "Distribución mensual: interes vs capital vs seguros" : "Distribución mensual: interes vs capital"
 
   return (
     <section className="panel section">
       <div className="chart-grid">
         <div className="chart-card">
           <h3 className="chart-title">Evolucion del saldo pendiente</h3>
-          <div style={{ width: '100%', height: 300 }}>
+          <div className="chart-container" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
-              <LineChart data={balanceChartData} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
+              <LineChart
+                data={balanceChartData}
+                margin={{ top: 8, right: 12, left: 12, bottom: isMobile ? 36 : 8 }}
+              >
                 <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
-                <XAxis dataKey="month" tickMargin={8} />
+                <XAxis dataKey="month" tickMargin={isMobile ? 12 : 8} height={isMobile ? 28 : undefined} />
                 <YAxis
-                  tickFormatter={(value) => formatCurrencyTick(value, isMobile)}
+                  tickFormatter={(value) => formatCurrencyTick(value)}
                   tickMargin={8}
                   width={isMobile ? 70 : 96}
                 />
                 <Tooltip
-                  formatter={(value) => formatTooltipCurrency(value, isMobile)}
-                  position={isMobile ? { x: 8, y: 8 } : undefined}
+                  content={<ChartTooltip isMobile={isMobile} />}
+                  wrapperStyle={buildTooltipWrapperStyle(isMobile)}
+                  allowEscapeViewBox={{ x: false, y: false }}
                 />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="balanceWithExtras"
-                  stroke="#1e4a72"
-                  name="Saldo (con aportes)"
-                  dot={false}
+                <Legend
+                  align="center"
+                  verticalAlign="bottom"
+                  height={isMobile ? 24 : undefined}
+                  wrapperStyle={isMobile ? { paddingTop: 4 } : undefined}
                 />
                 {hasExtraPayments ? (
-                  <Line
-                    type="monotone"
-                    dataKey="balanceWithoutExtras"
-                    stroke="#475569"
-                    strokeDasharray="4 4"
-                    name="Saldo (sin aportes)"
-                    dot={false}
-                  />
-                ) : null}
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="balanceWithExtras"
+                      stroke="#1e4a72"
+                      name="Saldo (con aportes)"
+                      dot={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="balanceWithoutExtras"
+                      stroke="#475569"
+                      strokeDasharray="4 4"
+                      name="Saldo (sin aportes)"
+                      dot={false}
+                    />
+                  </>
+                ) : (
+                  <Line type="monotone" dataKey="balanceWithExtras" stroke="#1e4a72" name="Saldo" dot={false} />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="chart-card">
-          <h3 className="chart-title">Distribucion mensual: interes vs capital vs seguros</h3>
-          <div style={{ width: '100%', height: 300 }}>
+          <h3 className="chart-title">{monthlyDistribution}</h3>
+          <div className="chart-container" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={schedule} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
                 <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                 <XAxis dataKey="month" tickMargin={8} />
                 <YAxis
-                  tickFormatter={(value) => formatCurrencyTick(value, isMobile)}
+                  tickFormatter={(value) => formatCurrencyTick(value)}
                   tickMargin={8}
                   width={isMobile ? 70 : 96}
                 />
-                <Tooltip formatter={(value) => formatTooltipCurrency(value, isMobile)} />
+                <Tooltip
+                  content={<ChartTooltip isMobile={isMobile} />}
+                  wrapperStyle={buildTooltipWrapperStyle(isMobile)}
+                  allowEscapeViewBox={{ x: false, y: false }}
+                />
                 <Legend />
                 <Bar dataKey="interest" fill="#f5a623" name="Interes" />
                 <Bar dataKey="principalPayment" fill="#2e9b6f" name="Capital" />
-                <Bar dataKey="insurance" fill="#475569" name="Seguros" />
+                {hasInsurance ? <Bar dataKey="insurance" fill="#475569" name="Seguros" /> : null}
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -114,8 +135,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
 }
 
 function formatCurrencyTick(
-  value: number | string | readonly (number | string)[] | undefined,
-  isMobile: boolean,
+  value: number | string | readonly (number | string)[] | undefined
 ): string {
   const numericValue = Number(Array.isArray(value) ? value[0] : value)
   if (!Number.isFinite(numericValue)) {
@@ -130,9 +150,7 @@ function formatCurrencyTick(
 }
 
 function formatTooltipCurrency(
-  value: number | string | readonly (number | string)[] | undefined,
-  isMobile: boolean,
-): string {
+  value: number | string | readonly (number | string)[] | undefined): string {
   const numericValue = Number(Array.isArray(value) ? value[0] : value)
   if (!Number.isFinite(numericValue)) {
     return '$0'
@@ -149,6 +167,22 @@ function formatMillions(value: number): string {
   const millions = value / 1_000_000
   const formatted = millions.toFixed(2).replace(/\.?0+$/, '')
   return `${formatted}M`
+}
+
+function buildTooltipWrapperStyle(isMobile: boolean): CSSProperties {
+  if (isMobile) {
+    return {
+      position: 'absolute',
+      left: 8,
+      right: 8,
+      top: 8,
+      pointerEvents: 'none',
+    }
+  }
+
+  return {
+    pointerEvents: 'none',
+  }
 }
 
 function buildBalanceChartData(
@@ -168,4 +202,57 @@ function buildBalanceChartData(
   }
 
   return rows
+}
+
+type ChartTooltipProps = {
+  active?: boolean
+  payload?: Array<{
+    name?: string
+    dataKey?: string
+    value?: number
+  }>
+  label?: number | string
+  isMobile: boolean
+}
+
+function ChartTooltip({ active, payload, label, isMobile }: ChartTooltipProps) {
+  if (!active || !payload || payload.length === 0) {
+    return null
+  }
+
+  const lines = payload
+    .filter((entry) => entry && Number.isFinite(entry.value))
+    .map((entry) => ({
+      label: entry.name ?? String(entry.dataKey ?? ''),
+      value: formatTooltipCurrency(entry.value ?? 0),
+    }))
+
+  if (lines.length === 0) {
+    return null
+  }
+
+  if (isMobile) {
+    const pairTexts = lines.map((line) => `${line.label}: ${line.value}`)
+    const firstLine = pairTexts.slice(0, 2).join(' · ')
+    const secondLine = pairTexts.slice(2).join(' · ')
+
+    return (
+      <div className="chart-tooltip-band is-mobile">
+        <span className="chart-tooltip-title">Mes {label}</span>
+        <span className="chart-tooltip-line">{firstLine}</span>
+        {secondLine ? <span className="chart-tooltip-line">{secondLine}</span> : null}
+      </div>
+    )
+  }
+
+  return (
+    <div className="chart-tooltip-band">
+      <span className="chart-tooltip-title">Mes {label}</span>
+      {lines.map((line) => (
+        <span key={line.label} className="chart-tooltip-line">
+          {line.label}: {line.value}
+        </span>
+      ))}
+    </div>
+  )
 }
