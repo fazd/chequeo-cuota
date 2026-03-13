@@ -26,8 +26,8 @@ export function CompactAmortizationTable({ rows }: CompactAmortizationTableProps
             <tr>
               <th>Mes</th>
               <th>Saldo inicial</th>
-              <th>Interes</th>
-              <th>Capital</th>
+              <th className="col-interest">Interes</th>
+              <th className="col-principal">Capital</th>
               <th>Abono extra</th>
               <th>Seguro base</th>
               <th>Seguro vida</th>
@@ -41,8 +41,8 @@ export function CompactAmortizationTable({ rows }: CompactAmortizationTableProps
               <tr key={row.month}>
                 <td>{row.month}</td>
                 <td>{formatCop(row.beginningBalance)}</td>
-                <td>{formatCop(row.interest)}</td>
-                <td>{formatCop(row.principalPayment)}</td>
+                <td className="col-interest">{formatCop(row.interest)}</td>
+                <td className="col-principal">{formatCop(row.principalPayment)}</td>
                 <td>{formatCop(row.extraPayment)}</td>
                 <td>{formatCop(row.baseInsurance)}</td>
                 <td>{formatCop(row.lifeInsurance)}</td>

@@ -2,6 +2,20 @@ import { Link } from 'react-router-dom'
 import { calculatorsRegistry } from '../../domain/calculators/registry'
 import { SeoHead } from '../seo/SeoHead'
 import { seoMetaByPath } from '../seo/meta'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faCar,
+  faHouse,
+  faPercent,
+  faCalculator,
+  faMagnifyingGlass
+} from '@fortawesome/free-solid-svg-icons'
+
+const iconByCalculatorId: Record<string, typeof faHouse> = {
+  hipotecario: faHouse,
+  vehicular: faCar,
+  libranza: faPercent,
+}
 
 export function Home() {
   const upcomingCalculators = calculatorsRegistry.filter(
@@ -17,7 +31,9 @@ export function Home() {
       <section className="app-shell app-surface">
         <div className="hero hero-landing">
           <div className="hero-icon" aria-hidden>
-            C
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+            />
           </div>
           <h1 className="title">Mis finanzas claras</h1>
         </div>
@@ -45,7 +61,14 @@ export function Home() {
                 className="upcoming-card-link"
               >
                 <article className="upcoming-card upcoming-card-active">
-                  <h3>{calculator.name}</h3>
+                  <div className="card-title-row">
+                    <span className="card-icon" aria-hidden>
+                      <FontAwesomeIcon
+                        icon={iconByCalculatorId[calculator.id] ?? faCalculator}
+                      />
+                    </span>
+                    <h3>{calculator.name}</h3>
+                  </div>
                   <p>{calculator.description}</p>
                   <span>Ir a calculadora</span>
                 </article>
@@ -59,7 +82,14 @@ export function Home() {
           <div className="upcoming-grid">
             {upcomingCalculators.map((calculator) => (
               <article key={calculator.id} className="upcoming-card" aria-disabled>
-                <h3>{calculator.name}</h3>
+                <div className="card-title-row">
+                  <span className="card-icon" aria-hidden>
+                    <FontAwesomeIcon
+                      icon={iconByCalculatorId[calculator.id] ?? faCalculator}
+                    />
+                  </span>
+                  <h3>{calculator.name}</h3>
+                </div>
                 <p>{calculator.description}</p>
               </article>
             ))}

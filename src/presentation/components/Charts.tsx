@@ -53,7 +53,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <LineChart data={balanceChartData} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                 <XAxis dataKey="month" tickMargin={8} />
                 <YAxis
                   tickFormatter={(value) => formatCurrencyTick(value, isMobile)}
@@ -68,7 +68,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
                 <Line
                   type="monotone"
                   dataKey="balanceWithExtras"
-                  stroke="#0b5ed7"
+                  stroke="#1e4a72"
                   name="Saldo (con aportes)"
                   dot={false}
                 />
@@ -76,7 +76,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
                   <Line
                     type="monotone"
                     dataKey="balanceWithoutExtras"
-                    stroke="#6b7280"
+                    stroke="#475569"
                     strokeDasharray="4 4"
                     name="Saldo (sin aportes)"
                     dot={false}
@@ -92,7 +92,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={schedule} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                 <XAxis dataKey="month" tickMargin={8} />
                 <YAxis
                   tickFormatter={(value) => formatCurrencyTick(value, isMobile)}
@@ -101,9 +101,9 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
                 />
                 <Tooltip formatter={(value) => formatTooltipCurrency(value, isMobile)} />
                 <Legend />
-                <Bar dataKey="interest" fill="#ef8354" name="Interes" />
-                <Bar dataKey="principalPayment" fill="#2d6a4f" name="Capital" />
-                <Bar dataKey="insurance" fill="#6b7280" name="Seguros" />
+                <Bar dataKey="interest" fill="#f5a623" name="Interes" />
+                <Bar dataKey="principalPayment" fill="#2e9b6f" name="Capital" />
+                <Bar dataKey="insurance" fill="#475569" name="Seguros" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -122,7 +122,7 @@ function formatCurrencyTick(
     return '$0'
   }
 
-  if (isMobile && Math.abs(numericValue) >= 1_000_000) {
+  if (Math.abs(numericValue) >= 1_000_000) {
     return `$${formatMillions(numericValue)}`
   }
 
@@ -138,7 +138,7 @@ function formatTooltipCurrency(
     return '$0'
   }
 
-  if (isMobile && Math.abs(numericValue) >= 1_000_000) {
+  if (Math.abs(numericValue) >= 1_000_000) {
     return `$${formatMillions(numericValue)}`
   }
 

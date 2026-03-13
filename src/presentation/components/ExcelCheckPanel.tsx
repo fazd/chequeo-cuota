@@ -109,7 +109,7 @@ export function ExcelCheckPanel({ schedule }: ExcelCheckPanelProps) {
   return (
     <section className="panel section">
       <h3 style={{ marginTop: 0 }}>Chequeo contra Excel (tolerancia +/-1 COP)</h3>
-      <p style={{ color: '#486581' }}>
+      <p className="excel-helper">
         Pega el CSV de Excel con columnas: Mes, Saldo inicial, Interes, Capital,
         Seguro, Pago total, Saldo final. Si hay columnas extra, se ignoran.
       </p>
@@ -117,14 +117,7 @@ export function ExcelCheckPanel({ schedule }: ExcelCheckPanelProps) {
       <textarea
         value={csvText}
         onChange={(event) => setCsvText(event.target.value)}
-        style={{
-          width: '100%',
-          minHeight: '150px',
-          border: '1px solid #bcccdc',
-          borderRadius: '8px',
-          padding: '0.6rem',
-          fontFamily: 'Consolas, monospace',
-        }}
+        className="excel-textarea"
         placeholder="Mes,Saldo inicial,Interes,Capital,Seguro,Pago total,Saldo final"
       />
 
@@ -183,12 +176,7 @@ export function ExcelCheckPanel({ schedule }: ExcelCheckPanelProps) {
             </div>
           ) : (
             <div
-              className="alert"
-              style={{
-                color: '#065f46',
-                borderColor: '#a7f3d0',
-                background: '#ecfdf5',
-              }}
+              className="alert alert-success"
             >
               Todo dentro de tolerancia +/-1 COP.
             </div>

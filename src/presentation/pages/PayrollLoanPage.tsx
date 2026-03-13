@@ -12,6 +12,8 @@ import { LoanForm } from '../components/LoanForm'
 import { StandardSummaryCards } from '../components/StandardSummaryCards'
 import { SeoHead } from '../seo/SeoHead'
 import { seoMetaByPath } from '../seo/meta'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPercent } from '@fortawesome/free-solid-svg-icons'
 
 const Charts = lazy(() => import('../components/Charts').then((m) => ({ default: m.Charts })))
 
@@ -50,7 +52,7 @@ export function PayrollLoanPage() {
       <section className="app-shell app-surface">
         <div className="hero hero-landing">
           <div className="hero-icon" aria-hidden>
-            L
+            <FontAwesomeIcon icon={faPercent} />
           </div>
           <h1 className="title">Amortizacion credito de libranza</h1>
         </div>

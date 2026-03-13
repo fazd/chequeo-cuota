@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import logo from '../../assets/logo.png'
 
 const navItems = [
   { to: '/', label: 'Inicio' },
@@ -28,7 +29,11 @@ export function Navbar() {
     <header className={`site-navbar${scrolled ? ' with-shadow' : ''}`}>
       <div className="site-navbar-inner">
         <Link to="/" className="brand">
-          Mis Finanzas Claras
+          <img src={logo} alt="Mis Finanzas Claras" className="brand-logo" />
+          <span className="brand-text">
+            <span>Mis Finanzas Claras</span>
+            <span>Educacion financiera</span>
+          </span>
         </Link>
 
         <button
