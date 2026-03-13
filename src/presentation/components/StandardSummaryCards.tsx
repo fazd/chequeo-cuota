@@ -57,12 +57,18 @@ export function StandardSummaryCards({ projection, summary }: StandardSummaryCar
         <Metric label="Total pagado" value={formatCop(summary.totalPaid)} />
         <Metric label="% intereses" value={formatPercent(summary.interestPct)} />
         <Metric label="% capital" value={formatPercent(summary.principalPct)} />
-        <Metric label="% seguros" value={formatPercent(summary.insurancePct)} />
-        <Metric
-          label="Ahorro de intereses"
-          value={formatCop(summary.interestSavingsFromPrepayments)}
-        />
-        <Metric label="Reduccion de plazo" value={formatMonths(summary.monthsReduced)} />
+        {summary.insurancePct > 0 ? (
+          <Metric label="% seguros" value={formatPercent(summary.insurancePct)} />
+        ) : null}
+        {summary.interestSavingsFromPrepayments > 0 ? (
+          <Metric
+            label="Ahorro de intereses"
+            value={formatCop(summary.interestSavingsFromPrepayments)}
+          />
+        ) : null}
+        {summary.monthsReduced > 0 ? (
+          <Metric label="Reduccion de plazo" value={formatMonths(summary.monthsReduced)} />
+        ) : null}
       </div>
 
       {summary.alertDifferenceAbove1Pct ? (
