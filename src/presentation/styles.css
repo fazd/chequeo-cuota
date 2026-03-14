@@ -511,6 +511,13 @@ body,
   font-size: 0.78rem;
   line-height: 1.2;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
+  max-width: 100%;
+  width: fit-content;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .chart-tooltip-band.is-mobile {

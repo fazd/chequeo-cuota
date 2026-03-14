@@ -133,3 +133,26 @@ Se mantienen pruebas unitarias de dominio/aplicacion como puerta minima.
 
 Regla de aceptacion tecnica:
 - Cualquier cambio de negocio exige actualizar o agregar pruebas.
+
+## 13) UI Design System (ui-diseño.md)
+Resumen obligatorio:
+- Tipografia principal: Plus Jakarta Sans. Evitar fuentes genericas (Inter/Roboto/Open Sans/Arial).
+- Tipografia secundaria opcional para numeros: IBM Plex Sans.
+- Paleta basada en el logo (Primary #0F2A44, Secondary #1E4A72, Accent Green #2E9B6F, Accent Orange #F5A623, neutrales #F8FAFC/#FFFFFF/#E2E8F0).
+- Estilo: fintech, profesional, limpio y centrado en datos. Evitar sombras exageradas, gradientes fuertes y look generico.
+- Graficas Recharts: Saldo #1E4A72, Capital #2E9B6F, Interes #F5A623, grid #E2E8F0.
+
+## 14) Mobile UX (graficas e inputs)
+Reglas de comportamiento:
+- Tooltips de graficas en mobile deben ser compactos, dentro del contenedor (bandas) y con maximo 2–3 lineas.
+- Nunca usar tooltip tipo modal o full-screen en mobile.
+- El tooltip no debe salirse del viewport; permitir wrap y limitar ancho.
+- Al perder foco (tap fuera/scroll), el tooltip debe desaparecer.
+- Eje X y leyenda deben reservar espacio para evitar superposicion en mobile.
+- Series condicionadas: si no hay aportes, solo una linea; si no hay seguros, no mostrar barra de seguros.
+- Al hacer scroll en mobile, cerrar teclado (blur del input activo).
+
+## 15) Regla de mantenimiento de AGENTS.md
+Siempre actualizar este documento despues de:
+- Arreglar errores o inconsistencias funcionales.
+- Analizar nuevos documentos de diseño o arquitectura.

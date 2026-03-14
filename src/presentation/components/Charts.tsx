@@ -1,4 +1,4 @@
-import {
+﻿import {
   Bar,
   BarChart,
   CartesianGrid,
@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { AmortizationRow } from '../../domain/loan.types'
 import { formatCop } from '../../utils/currency'
@@ -33,6 +33,10 @@ const copTickFormatter = new Intl.NumberFormat('es-CO', {
 
 export function Charts({ schedule, baselineSchedule }: ChartsProps) {
   const [isMobile, setIsMobile] = useState(false)
+  const balanceChartRef = useRef<HTMLDivElement | null>(null)
+  const distributionChartRef = useRef<HTMLDivElement | null>(null)
+  const [hideBalanceTooltip, setHideBalanceTooltip] = useState(true)
+  const [hideDistributionTooltip, setHideDistributionTooltip] = useState(true)
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
@@ -42,19 +46,57 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
     mediaQuery.addEventListener('change', update)
     return () => mediaQuery.removeEventListener('change', update)
   }, [])
-  console.log('schedule', schedule)
+
+  useEffect(() => {
+    if (!isMobile) {
+      setHideBalanceTooltip(false)
+      setHideDistributionTooltip(false)
+      return
+    }
+
+    const handleScroll = () => {
+      setHideBalanceTooltip(true)
+      setHideDistributionTooltip(true)
+    }
+
+    const handleTouchStart = (event: TouchEvent) => {
+      const target = event.target as Node | null
+      if (balanceChartRef.current?.contains(target ?? null)) {
+        setHideBalanceTooltip(false)
+      } else {
+        setHideBalanceTooltip(true)
+      }
+
+      if (distributionChartRef.current?.contains(target ?? null)) {
+        setHideDistributionTooltip(false)
+      } else {
+        setHideDistributionTooltip(true)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('touchstart', handleTouchStart)
+    }
+  }, [isMobile])
+
   const hasExtraPayments = schedule.some((row) => row.extraPayment > 0.01)
   const balanceChartData = buildBalanceChartData(schedule, baselineSchedule)
   const hasInsurance = schedule.some((row) => row.insurance > 0)
 
-  const monthlyDistribution = hasInsurance ? "Distribución mensual: interes vs capital vs seguros" : "Distribución mensual: interes vs capital"
+  const monthlyDistribution = hasInsurance
+    ? 'Distribución mensual: interes vs capital vs seguros'
+    : 'Distribución mensual: interes vs capital'
 
   return (
     <section className="panel section">
       <div className="chart-grid">
         <div className="chart-card">
           <h3 className="chart-title">Evolucion del saldo pendiente</h3>
-          <div className="chart-container" style={{ width: '100%', height: 300 }}>
+          <div ref={balanceChartRef} className="chart-container" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <LineChart
                 data={balanceChartData}
@@ -68,7 +110,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
                   width={isMobile ? 70 : 96}
                 />
                 <Tooltip
-                  content={<ChartTooltip isMobile={isMobile} />}
+                  content={<ChartTooltip isMobile={isMobile} isHidden={isMobile && hideBalanceTooltip} />}
                   wrapperStyle={buildTooltipWrapperStyle(isMobile)}
                   allowEscapeViewBox={{ x: false, y: false }}
                 />
@@ -106,7 +148,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
 
         <div className="chart-card">
           <h3 className="chart-title">{monthlyDistribution}</h3>
-          <div className="chart-container" style={{ width: '100%', height: 300 }}>
+          <div ref={distributionChartRef} className="chart-container" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={schedule} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
                 <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
@@ -117,7 +159,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
                   width={isMobile ? 70 : 96}
                 />
                 <Tooltip
-                  content={<ChartTooltip isMobile={isMobile} />}
+                  content={<ChartTooltip isMobile={isMobile} isHidden={isMobile && hideDistributionTooltip} />}
                   wrapperStyle={buildTooltipWrapperStyle(isMobile)}
                   allowEscapeViewBox={{ x: false, y: false }}
                 />
@@ -134,9 +176,7 @@ export function Charts({ schedule, baselineSchedule }: ChartsProps) {
   )
 }
 
-function formatCurrencyTick(
-  value: number | string | readonly (number | string)[] | undefined
-): string {
+function formatCurrencyTick(value: number | string | readonly (number | string)[] | undefined): string {
   const numericValue = Number(Array.isArray(value) ? value[0] : value)
   if (!Number.isFinite(numericValue)) {
     return '$0'
@@ -149,8 +189,7 @@ function formatCurrencyTick(
   return `$${copTickFormatter.format(Math.round(numericValue))}`
 }
 
-function formatTooltipCurrency(
-  value: number | string | readonly (number | string)[] | undefined): string {
+function formatTooltipCurrency(value: number | string | readonly (number | string)[] | undefined): string {
   const numericValue = Number(Array.isArray(value) ? value[0] : value)
   if (!Number.isFinite(numericValue)) {
     return '$0'
@@ -177,6 +216,9 @@ function buildTooltipWrapperStyle(isMobile: boolean): CSSProperties {
       right: 8,
       top: 8,
       pointerEvents: 'none',
+      display: 'flex',
+      justifyContent: 'center',
+      maxWidth: '100%',
     }
   }
 
@@ -213,10 +255,11 @@ type ChartTooltipProps = {
   }>
   label?: number | string
   isMobile: boolean
+  isHidden?: boolean
 }
 
-function ChartTooltip({ active, payload, label, isMobile }: ChartTooltipProps) {
-  if (!active || !payload || payload.length === 0) {
+function ChartTooltip({ active, payload, label, isMobile, isHidden }: ChartTooltipProps) {
+  if (isHidden || !active || !payload || payload.length === 0) {
     return null
   }
 
