@@ -6,9 +6,19 @@ import { Navbar } from './Navbar'
 export function AppLayout() {
   useEffect(() => {
     const shouldBlur = () => window.innerWidth <= 640
+    let lastFocusAt = 0
+    let isTouchScrolling = false
 
     const handleScroll = () => {
       if (!shouldBlur()) {
+        return
+      }
+
+      if (Date.now() - lastFocusAt < 500) {
+        return
+      }
+
+      if (!isTouchScrolling) {
         return
       }
 
@@ -23,12 +33,36 @@ export function AppLayout() {
       }
     }
 
+    const handleFocusIn = (event: FocusEvent) => {
+      const target = event.target as HTMLElement | null
+      if (!target) {
+        return
+      }
+
+      const tagName = target.tagName
+      if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+        lastFocusAt = Date.now()
+      }
+    }
+
+    const handleTouchStart = () => {
+      isTouchScrolling = false
+    }
+
+    const handleTouchMove = () => {
+      isTouchScrolling = true
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('touchmove', handleScroll, { passive: true })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    window.addEventListener('focusin', handleFocusIn)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('touchmove', handleScroll)
+      window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('focusin', handleFocusIn)
     }
   }, [])
 

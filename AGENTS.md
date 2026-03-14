@@ -151,6 +151,7 @@ Reglas de comportamiento:
 - Eje X y leyenda deben reservar espacio para evitar superposicion en mobile.
 - Series condicionadas: si no hay aportes, solo una linea; si no hay seguros, no mostrar barra de seguros.
 - Al hacer scroll en mobile, cerrar teclado (blur del input activo).
+- No cerrar el teclado inmediatamente tras enfocar; solo cerrar en scroll real del usuario.
 
 ## 15) Regla de mantenimiento de AGENTS.md
 Siempre actualizar este documento despues de:
