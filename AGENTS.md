@@ -1,7 +1,7 @@
 # AGENTS.md - Decisiones de Arquitectura
 
 ## Objetivo del documento
-Este archivo resume las decisiones arquitectonicas vigentes del proyecto `chequeo-cuota` para guiar trabajo futuro de agentes y desarrolladores.
+Este archivo resume las decisiones arquitectonicas vigentes del proyecto `finanzas claras` para guiar trabajo futuro de agentes y desarrolladores.
 
 ## 1) Vision de producto y alcance
 El proyecto evoluciona de una calculadora unica a una plataforma educativa financiera llamada **Finanzas claras**.

@@ -43,8 +43,8 @@ Construir una SPA que permita:
 Comandos base:
 
 ```bash
-npm create vite@latest chequeo-cuota -- --template react-ts
-cd chequeo-cuota
+npm create vite@latest finanzas claras -- --template react-ts
+cd finanzas claras
 npm install
 npm install recharts
 ```
