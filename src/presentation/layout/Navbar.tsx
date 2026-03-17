@@ -29,9 +29,9 @@ export function Navbar() {
     <header className={`site-navbar${scrolled ? ' with-shadow' : ''}`}>
       <div className="site-navbar-inner">
         <Link to="/" className="brand">
-          <img src={logo} alt="Mis Finanzas Claras" className="brand-logo" />
+          <img src={logo} alt="Finanzas Claras" className="brand-logo" />
           <span className="brand-text">
-            <span>Mis Finanzas Claras</span>
+            <span>Finanzas Claras</span>
             <span>Educacion financiera</span>
           </span>
         </Link>

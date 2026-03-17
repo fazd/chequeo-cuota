@@ -1,4 +1,4 @@
-const siteUrl = import.meta.env.VITE_SITE_URL ?? 'https://misfinanzasclaras.vercel.app'
+const siteUrl = import.meta.env.VITE_SITE_URL ?? 'https://finanzasclaras.app'
 
 export function buildCanonical(pathname: string): string {
   const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`

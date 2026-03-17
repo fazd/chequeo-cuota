@@ -35,7 +35,7 @@ export function Home() {
               icon={faMagnifyingGlass}
             />
           </div>
-          <h1 className="title">Mis finanzas claras</h1>
+          <h1 className="title">Finanzas claras</h1>
         </div>
 
         <p className="subtitle">
@@ -46,7 +46,7 @@ export function Home() {
         <section className="landing-block">
           <h2 className="landing-title">Como te ayudamos</h2>
           <p>
-            Mis Finanzas Claras te permite entender conceptos clave y tomar
+            Finanzas Claras te permite entender conceptos clave y tomar
             decisiones con mayor claridad antes de hablar con tu banco.
           </p>
         </section>

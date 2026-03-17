@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="site-footer">
       <div className="site-footer-grid">
         <section>
-          <h3 className="site-footer-title">Mis Finanzas Claras</h3>
+          <h3 className="site-footer-title">Finanzas Claras</h3>
           <p>Herramientas claras para entender tus finanzas.</p>
         </section>
 

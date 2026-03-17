@@ -4,7 +4,7 @@
 Este archivo resume las decisiones arquitectonicas vigentes del proyecto `chequeo-cuota` para guiar trabajo futuro de agentes y desarrolladores.
 
 ## 1) Vision de producto y alcance
-El proyecto evoluciona de una calculadora unica a una plataforma educativa financiera llamada **Mis Finanzas Claras**.
+El proyecto evoluciona de una calculadora unica a una plataforma educativa financiera llamada **Finanzas claras**.
 
 Principios vigentes:
 - 100% frontend.

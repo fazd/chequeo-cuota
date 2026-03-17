@@ -1,4 +1,4 @@
-# UI Design System – Mis Finanzas Claras
+# UI Design System – Finanzas claras
 
 ## Objetivo
 

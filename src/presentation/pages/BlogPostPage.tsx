@@ -21,7 +21,7 @@ export function BlogPostPage() {
   }
 
   const meta = {
-    title: `${post.title} - Mis Finanzas Claras`,
+    title: `${post.title} - Finanzas claras`,
     description: post.excerpt,
     canonical: buildCanonical(`/blog/${post.slug}`),
     ogType: 'article' as const,

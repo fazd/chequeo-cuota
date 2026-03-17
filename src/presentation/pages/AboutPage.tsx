@@ -7,7 +7,7 @@ export function AboutPage() {
       <SeoHead meta={seoMetaByPath.about} />
       <h1 className="page-title">Sobre el proyecto</h1>
       <p>
-        Mis Finanzas Claras existe para ayudarte a entender y validar decisiones
+        Finanzas Claras existe para ayudarte a entender y validar decisiones
         financieras con herramientas simples y transparentes.
       </p>
       <p>

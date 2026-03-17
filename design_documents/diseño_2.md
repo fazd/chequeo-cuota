@@ -1,4 +1,4 @@
-# Mis Finanzas Claras - Plan de Producto, Navegacion y Contenido
+# Finanzas claras - Plan de Producto, Navegacion y Contenido
 
 ## Proposito de este Documento
 
@@ -21,7 +21,7 @@ este documento define:
 
 El MVP evoluciona de una simple calculadora a una plataforma educativa financiera llamada:
 
-**Mis Finanzas Claras**
+**Finanzas claras**
 
 Objetivo:
 
@@ -84,7 +84,7 @@ Todas las paginas usaran este layout.
 
 ## Requerimientos
 
-- Logo texto: "Mis Finanzas Claras"
+- Logo texto: "Finanzas claras"
 - Links:
   - Inicio
   - Como funciona
