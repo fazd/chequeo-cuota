@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://finanzasclaras.vercel.app/sitemap.xml
+Sitemap: https://finanzasclaras.app/sitemap.xml
