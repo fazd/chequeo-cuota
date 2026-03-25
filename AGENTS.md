@@ -228,3 +228,14 @@ Estado:
 - Routing de calculadoras, Home, Navbar y SEO de calculadoras consumen el manifest.
 - `sitemap.xml` se genera automaticamente desde manifest + blog MDX con `npm run generate:sitemap` (ejecutado en `build`).
 - Pendiente por fases posteriores: adapter/factory de paginas, schemas UI y scaffolder de nuevas calculadoras.
+
+## 18) Plan UI Landing Page (design_documents/landingpage.md)
+Decision vigente:
+- La landing se rediseña con enfoque en jerarquia visual y reduccion de texto.
+- Orden canonico de bloques: Hero -> Calculadoras activas -> Como funciona -> Confianza/privacidad -> FAQ compacto -> CTA final.
+- "Proximamente" pasa a formato secundario para no competir con la accion principal.
+- El plan de referencia para ejecucion es `design_documents/landingpage.md`.
+- Implementacion mobile-first obligatoria:
+  - CTA principal visible en primer bloque y tocable en mobile.
+  - Grids de landing degradan a 1 columna en pantallas pequenas.
+  - FAQ compacto en acordeon para reducir altura y mejorar escaneo.
