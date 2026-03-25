@@ -14,7 +14,7 @@ import type {
   CreditCardRateType,
 } from '../../domain/tc/loan.types'
 import { simulateCreditCard } from '../../domain/tc/simulator'
-import { formatCop } from '../../utils/currency'
+import { formatCop, formatCopWhole, formatPercent } from '../../utils/currency'
 import {
   MoneyInput,
   parseMoneyInputValue,
@@ -61,6 +61,7 @@ interface CardDraft {
 
 const MAX_CARDS = 5
 const CONSOLIDATED_TAB = 'consolidated'
+const EPSILON = 0.000001
 
 export function CreditCardCalculatorPage() {
   const [cards, setCards] = useState<CardDraft[]>([buildCardDraft(1)])
@@ -80,6 +81,10 @@ export function CreditCardCalculatorPage() {
   const hasMultipleCards = cards.length > 1
   const activeCard = cards.find((card) => card.id === activeTab) ?? cards[0]
   const isConsolidated = hasMultipleCards && activeTab === CONSOLIDATED_TAB
+  const activeProjection = activeCard ? cardProjections[activeCard.id] : null
+  const activeSavingsSummary = activeProjection
+    ? buildCardSavingsSummary(activeProjection)
+    : null
 
   useEffect(() => {
     if (!hasMultipleCards && activeTab === CONSOLIDATED_TAB) {
@@ -393,11 +398,14 @@ export function CreditCardCalculatorPage() {
                 </button>
               </div>
 
-              {cardProjections[activeCard.id] ? (
+              {activeProjection ? (
                 <>
-                  <CreditCardSummaryCards projection={cardProjections[activeCard.id]} />
-                  <CreditCardCharts schedule={cardProjections[activeCard.id].schedule} baselineSchedule={cardProjections[activeCard.id].baselineSchedule} />
-                  <CreditCardTable rows={cardProjections[activeCard.id].schedule} />
+                  <CreditCardSummaryCards projection={activeProjection} />
+                  {activeSavingsSummary ? (
+                    <p className="savings-summary">{activeSavingsSummary}</p>
+                  ) : null}
+                  <CreditCardCharts schedule={activeProjection.schedule} baselineSchedule={activeProjection.baselineSchedule} />
+                  <CreditCardTable rows={activeProjection.schedule} />
                 </>
               ) : null}
             </div>
@@ -454,14 +462,46 @@ export function CreditCardCalculatorPage() {
                 <>
                   <section className="panel section">
                     <div className="cards-grid">
-                      <Metric label="Deuda inicial total" value={formatCop(consolidatedTotals.totalBeginningDebt)} />
-                      <Metric label="Interes total" value={formatCop(consolidatedTotals.totalInterest)} />
-                      <Metric label="Cuota manejo total" value={formatCop(consolidatedTotals.totalHandlingFee)} />
-                      {Math.abs(consolidatedTotals.totalInsurance) > 0.000001 ? (
-                        <Metric label="Seguro total" value={formatCop(consolidatedTotals.totalInsurance)} />
+                      <Metric label="Deuda inicial total" value={formatCopWhole(consolidatedTotals.totalBeginningDebt)} />
+                      <Metric label="Interes total" value={formatCopWhole(consolidatedTotals.totalInterest)} />
+                      {Math.abs(consolidatedTotals.totalHandlingFee) > EPSILON ? (
+                        <Metric label="Cuota manejo total" value={formatCopWhole(consolidatedTotals.totalHandlingFee)} />
                       ) : null}
-                      <Metric label="Aportes totales" value={formatCop(consolidatedTotals.totalExtraPaid)} />
-                      <Metric label="Total pagado" value={formatCop(consolidatedTotals.totalPaid)} />
+                      {Math.abs(consolidatedTotals.totalInsurance) > EPSILON ? (
+                        <Metric label="Seguro total" value={formatCopWhole(consolidatedTotals.totalInsurance)} />
+                      ) : null}
+                      {Math.abs(consolidatedTotals.totalExtraPaid) > EPSILON ? (
+                        <Metric label="Aportes totales" value={formatCopWhole(consolidatedTotals.totalExtraPaid)} />
+                      ) : null}
+                      <Metric label="Total pagado" value={formatCopWhole(consolidatedTotals.totalPaid)} />
+                      <Metric
+                        label="% intereses"
+                        value={formatPercent(safePct(consolidatedTotals.totalInterest, consolidatedTotals.totalPaid))}
+                      />
+                      <Metric
+                        label="% deuda total"
+                        value={formatPercent(
+                          safePct(
+                            consolidatedTotals.totalPaid -
+                              consolidatedTotals.totalInterest -
+                              consolidatedTotals.totalHandlingFee -
+                              consolidatedTotals.totalInsurance,
+                            consolidatedTotals.totalPaid,
+                          ),
+                        )}
+                      />
+                      {Math.abs(consolidatedTotals.totalHandlingFee) > EPSILON ? (
+                        <Metric
+                          label="% cuota manejo"
+                          value={formatPercent(safePct(consolidatedTotals.totalHandlingFee, consolidatedTotals.totalPaid))}
+                        />
+                      ) : null}
+                      {Math.abs(consolidatedTotals.totalInsurance) > EPSILON ? (
+                        <Metric
+                          label="% seguros"
+                          value={formatPercent(safePct(consolidatedTotals.totalInsurance, consolidatedTotals.totalPaid))}
+                        />
+                      ) : null}
                     </div>
                   </section>
                   <section className="panel section">
@@ -636,6 +676,48 @@ function toNonNegativeMoney(rawValue: string, message: string): number {
   const parsed = parseMoneyInputValue(rawValue)
   if (!Number.isFinite(parsed) || parsed < 0) throw new Error(message)
   return parsed
+}
+
+function safePct(part: number, total: number): number {
+  if (!Number.isFinite(part) || !Number.isFinite(total) || Math.abs(total) < EPSILON) {
+    return 0
+  }
+  return (part / total) * 100
+}
+
+function buildCardSavingsSummary(projection: CreditCardProjection): string | null {
+  const messages: string[] = []
+
+  if (projection.interestSavingsFromPrepayments > EPSILON) {
+    messages.push(
+      `ahorras ${formatCop(projection.interestSavingsFromPrepayments)} en intereses`,
+    )
+  }
+
+  if (projection.monthsReduced > 0) {
+    messages.push(`reduces el plazo en ${formatMonths(projection.monthsReduced)}`)
+  }
+
+  if (messages.length === 0) {
+    return null
+  }
+
+  if (messages.length === 1) {
+    return `Gracias a los aportes adicionales en esta tarjeta, ${messages[0]}.`
+  }
+
+  return `Gracias a los aportes adicionales en esta tarjeta, ${messages[0]} y ${messages[1]}.`
+}
+
+function formatMonths(months: number): string {
+  const years = Math.floor(months / 12)
+  const remainingMonths = months % 12
+
+  if (years === 0) {
+    return `${months} meses`
+  }
+
+  return `${years} anios y ${remainingMonths} meses`
 }
 
 function toMoneyNumber(rawValue: string): number {

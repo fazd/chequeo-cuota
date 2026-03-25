@@ -1,4 +1,4 @@
-import { formatCop, formatPercent } from '../../utils/currency'
+import { formatCopWhole, formatPercent } from '../../utils/currency'
 
 interface StandardProjection {
   theoreticalInstallmentExInsurance: number
@@ -17,6 +17,7 @@ interface StandardSummaryCardsProps {
 interface StandardSummary {
   totalInterest: number
   totalPrincipal: number
+  totalInsurance: number
   totalPaid: number
   monthsReduced: number
   interestSavingsFromPrepayments: number
@@ -27,43 +28,48 @@ interface StandardSummary {
 }
 
 export function StandardSummaryCards({ projection, summary }: StandardSummaryCardsProps) {
+  const hasInsurance = summary.totalInsurance > 0.000001
+
   return (
     <section className="panel section">
       <div className="cards-grid">
         <Metric
           label="Cuota teorica sin seguro"
-          value={formatCop(projection.theoreticalInstallmentExInsurance)}
+          value={formatCopWhole(projection.theoreticalInstallmentExInsurance)}
         />
         <Metric
           label="Cuota teorica con seguro"
-          value={formatCop(projection.theoreticalInstallmentInclInsurance)}
+          value={formatCopWhole(projection.theoreticalInstallmentInclInsurance)}
         />
         {projection.bankComparisonAvailable ? (
           <Metric
             label="Cuota banco sin seguro"
-            value={formatCop(projection.bankInstallmentNormalized)}
+            value={formatCopWhole(projection.bankInstallmentNormalized)}
           />
         ) : null}
         {projection.bankComparisonAvailable ? (
           <Metric
             label="Diferencia"
-            value={`${formatCop(projection.installmentDifference)} (${formatPercent(
+            value={`${formatCopWhole(projection.installmentDifference)} (${formatPercent(
               projection.installmentDifferencePct,
             )})`}
           />
         ) : null}
-        <Metric label="Total intereses" value={formatCop(summary.totalInterest)} />
-        <Metric label="Total capital" value={formatCop(summary.totalPrincipal)} />
-        <Metric label="Total pagado" value={formatCop(summary.totalPaid)} />
+        <Metric label="Total intereses" value={formatCopWhole(summary.totalInterest)} />
+        <Metric label="Total capital" value={formatCopWhole(summary.totalPrincipal)} />
+        {hasInsurance ? (
+          <Metric label="Total seguros" value={formatCopWhole(summary.totalInsurance)} />
+        ) : null}
+        <Metric label="Total pagado" value={formatCopWhole(summary.totalPaid)} />
         <Metric label="% intereses" value={formatPercent(summary.interestPct)} />
         <Metric label="% capital" value={formatPercent(summary.principalPct)} />
-        {summary.insurancePct > 0 ? (
+        {hasInsurance ? (
           <Metric label="% seguros" value={formatPercent(summary.insurancePct)} />
         ) : null}
         {summary.interestSavingsFromPrepayments > 0 ? (
           <Metric
             label="Ahorro de intereses"
-            value={formatCop(summary.interestSavingsFromPrepayments)}
+            value={formatCopWhole(summary.interestSavingsFromPrepayments)}
           />
         ) : null}
         {summary.monthsReduced > 0 ? (

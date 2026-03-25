@@ -180,8 +180,15 @@ Decision de UX:
 - Eliminar tarjeta requiere modal de confirmacion antes de borrar el tab.
 - Aportes mensuales se muestran en card dedicada de "Aportes adicionales" dentro de la tarjeta activa.
 - Si el valor de seguros es 0, la card/metrica de seguros NO debe mostrarse en resumen de tarjeta ni consolidado.
+- Regla global de seguros (todas las calculadoras): si hay seguro (>0), mostrar siempre ambas cards `Total seguros` y `% seguros`; si el seguro es 0, ocultar ambas.
 - Regla general de visualizacion: si una metrica/columna/serie grafica es siempre 0 en el escenario actual, NO debe mostrarse.
 - En tabla de amortizacion TC, ocultar columnas de cuota de manejo y/o seguro cuando su valor es 0 en todas las filas.
+- En tabla de amortizacion TC, ocultar columna `Aporte` cuando todos los meses tienen aporte 0.
+- En simulador TC, normalizar a 0 los `extraPayment` con magnitud menor al epsilon para evitar ruido por precision flotante.
+- En resumen de TC, `Cupo usado` se calcula sobre deuda inicial vs cupo y `Cupo liberado` como reduccion acumulada de deuda (deuda inicial - deuda final), no usando solo el ultimo mes.
+- En tarjetas de metricas (cards-grid) los valores monetarios deben mostrarse sin decimales para mejorar legibilidad en montos grandes.
+- En resumen TC (individual y consolidado), mostrar al final porcentajes de composicion: `% intereses`, `% deuda total`, `% cuota manejo` y `% seguros` (los dos ultimos solo si aplican).
+- En TC por tarjeta, si los aportes generan ahorro de intereses y/o reduccion de plazo, mostrar mensaje tipo `savings-summary` igual al patron de las otras calculadoras.
 
 Motor TC:
 - Simulacion mensual por tarjeta con:

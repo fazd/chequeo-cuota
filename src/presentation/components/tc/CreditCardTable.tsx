@@ -6,6 +6,7 @@ interface CreditCardTableProps {
 }
 
 export function CreditCardTable({ rows }: CreditCardTableProps) {
+  const showExtraPayment = rows.some((row) => Math.abs(row.extraPayment) > 0.000001)
   const showLimitColumns = rows.some((row) => row.usedLimitPct != null)
   const showHandlingFee = rows.some((row) => Math.abs(row.handlingFee) > 0.000001)
   const showInsurance = rows.some((row) => Math.abs(row.insurance) > 0.000001)
@@ -22,7 +23,7 @@ export function CreditCardTable({ rows }: CreditCardTableProps) {
               {showHandlingFee ? <th>Cuota manejo</th> : null}
               {showInsurance ? <th>Seguro</th> : null}
               <th>Pago minimo</th>
-              <th>Aporte</th>
+              {showExtraPayment ? <th>Aporte</th> : null}
               <th>Pago total</th>
               <th>Aporte a capital</th>
               <th>Deuda final</th>
@@ -39,7 +40,7 @@ export function CreditCardTable({ rows }: CreditCardTableProps) {
                 {showHandlingFee ? <td>{formatCop(row.handlingFee)}</td> : null}
                 {showInsurance ? <td>{formatCop(row.insurance)}</td> : null}
                 <td>{formatCop(row.minimumPayment)}</td>
-                <td>{formatCop(row.extraPayment)}</td>
+                {showExtraPayment ? <td>{formatCop(row.extraPayment)}</td> : null}
                 <td>{formatCop(row.totalPayment)}</td>
                 <td>{formatCop(row.principalDelta)}</td>
                 <td>{formatCop(row.endingDebt)}</td>

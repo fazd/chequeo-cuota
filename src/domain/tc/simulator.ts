@@ -178,7 +178,8 @@ function simulateScenario(
     }
 
     const minimumPayment = Math.min(minimumPlan, totalPayment)
-    const extraPayment = Math.max(0, totalPayment - minimumPayment)
+    const extraPaymentRaw = Math.max(0, totalPayment - minimumPayment)
+    const extraPayment = Math.abs(extraPaymentRaw) < EPSILON ? 0 : extraPaymentRaw
     let endingDebt = beginningDebt + monthlyCharges - totalPayment
 
     if (Math.abs(endingDebt) < EPSILON) {

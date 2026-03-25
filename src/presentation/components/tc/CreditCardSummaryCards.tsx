@@ -1,17 +1,50 @@
 import type { CreditCardProjection } from '../../../domain/tc/loan.types'
-import { formatCop, formatPercent } from '../../../utils/currency'
+import { formatCopWhole, formatPercent } from '../../../utils/currency'
 
 interface CreditCardSummaryCardsProps {
   projection: CreditCardProjection
 }
 
+const EPSILON = 0.000001
+
 export function CreditCardSummaryCards({ projection }: CreditCardSummaryCardsProps) {
+  const firstRow = projection.schedule[0]
   const latestRow = projection.schedule[projection.schedule.length - 1]
-  const usedLimitPct = latestRow?.usedLimitPct ?? 0
-  const usedLimitAmount = latestRow?.usedLimitAmount ?? 0
-  const releasedLimitAmount = latestRow?.releasedLimitAmount ?? 0
-  const hasLimitMetrics = latestRow?.usedLimitPct != null
-  const hasInsuranceTotals = Math.abs(projection.totalInsurance) > 0.000001
+  const rowWithLimitData = projection.schedule.find(
+    (row) => row.usedLimitAmount != null && row.releasedLimitAmount != null,
+  )
+  const inferredCreditLimit = rowWithLimitData
+    ? (rowWithLimitData.usedLimitAmount ?? 0) + (rowWithLimitData.releasedLimitAmount ?? 0)
+    : null
+  const hasLimitMetrics =
+    firstRow != null &&
+    latestRow != null &&
+    inferredCreditLimit != null &&
+    inferredCreditLimit > EPSILON
+
+  const usedLimitAmount = hasLimitMetrics ? Math.max(0, firstRow.beginningDebt) : 0
+  const releasedLimitAmount = hasLimitMetrics
+    ? Math.max(0, firstRow.beginningDebt - latestRow.endingDebt)
+    : 0
+  const usedLimitPct =
+    hasLimitMetrics && inferredCreditLimit
+      ? (usedLimitAmount / inferredCreditLimit) * 100
+      : 0
+
+  const hasHandlingFeeTotals = Math.abs(projection.totalHandlingFee) > EPSILON
+  const hasInsuranceTotals = Math.abs(projection.totalInsurance) > EPSILON
+  const hasExtraPaid = Math.abs(projection.totalExtraPaid) > EPSILON
+  const hasInterestSavings = Math.abs(projection.interestSavingsFromPrepayments) > EPSILON
+  const hasMonthsReduced = projection.monthsReduced > 0
+  const hasUsedLimitMetric = hasLimitMetrics && Math.abs(usedLimitAmount) > EPSILON
+  const hasReleasedLimitMetric = hasLimitMetrics && Math.abs(releasedLimitAmount) > EPSILON
+  const totalPaid = projection.totalPaid
+  const principalPaid = projection.schedule.reduce((sum, row) => sum + row.principalDelta, 0)
+  const interestPct = totalPaid > EPSILON ? (projection.totalInterest / totalPaid) * 100 : 0
+  const principalPct = totalPaid > EPSILON ? (principalPaid / totalPaid) * 100 : 0
+  const handlingFeePct =
+    totalPaid > EPSILON ? (projection.totalHandlingFee / totalPaid) * 100 : 0
+  const insurancePct = totalPaid > EPSILON ? (projection.totalInsurance / totalPaid) * 100 : 0
 
   return (
     <section className="panel section">
@@ -22,30 +55,36 @@ export function CreditCardSummaryCards({ projection }: CreditCardSummaryCardsPro
               ? 'Cuota minima teorica'
               : 'Cuota minima a pagar (teorica)'
           }
-          value={formatCop(projection.minimumPaymentComparison.theoreticalMinimumPayment)}
+          value={formatCopWhole(projection.minimumPaymentComparison.theoreticalMinimumPayment)}
         />
         {projection.minimumPaymentComparison.comparisonAvailable ? (
           <Metric
             label="Cuota minima reportada"
-            value={formatCop(projection.minimumPaymentComparison.reportedMinimumPayment ?? 0)}
+            value={formatCopWhole(
+              projection.minimumPaymentComparison.reportedMinimumPayment ?? 0,
+            )}
           />
         ) : null}
         {projection.minimumPaymentComparison.comparisonAvailable ? (
           <Metric
             label="Diferencia cuota minima"
-            value={`${formatCop(projection.minimumPaymentComparison.difference)} (${formatPercent(
+            value={`${formatCopWhole(projection.minimumPaymentComparison.difference)} (${formatPercent(
               projection.minimumPaymentComparison.differencePct,
             )})`}
           />
         ) : null}
-        <Metric label="Intereses totales" value={formatCop(projection.totalInterest)} />
-        <Metric label="Cuota manejo total" value={formatCop(projection.totalHandlingFee)} />
-        {hasInsuranceTotals ? (
-          <Metric label="Seguros totales" value={formatCop(projection.totalInsurance)} />
+        <Metric label="Intereses totales" value={formatCopWhole(projection.totalInterest)} />
+        {hasHandlingFeeTotals ? (
+          <Metric label="Cuota manejo total" value={formatCopWhole(projection.totalHandlingFee)} />
         ) : null}
-        <Metric label="Pago minimo acumulado" value={formatCop(projection.totalMinimumPaid)} />
-        <Metric label="Aportes acumulados" value={formatCop(projection.totalExtraPaid)} />
-        <Metric label="Total pagado" value={formatCop(projection.totalPaid)} />
+        {hasInsuranceTotals ? (
+          <Metric label="Seguros totales" value={formatCopWhole(projection.totalInsurance)} />
+        ) : null}
+        <Metric label="Pago minimo acumulado" value={formatCopWhole(projection.totalMinimumPaid)} />
+        {hasExtraPaid ? (
+          <Metric label="Aportes acumulados" value={formatCopWhole(projection.totalExtraPaid)} />
+        ) : null}
+        <Metric label="Total pagado" value={formatCopWhole(projection.totalPaid)} />
         <Metric
           label="Meses para cancelar"
           value={
@@ -54,20 +93,30 @@ export function CreditCardSummaryCards({ projection }: CreditCardSummaryCardsPro
               : `${projection.monthsToPayoff} meses`
           }
         />
-        <Metric
-          label="Ahorro intereses (vs baseline)"
-          value={formatCop(projection.interestSavingsFromPrepayments)}
-        />
-        <Metric
-          label="Reduccion de plazo"
-          value={`${projection.monthsReduced} meses`}
-        />
-        {hasLimitMetrics ? (
-          <Metric label="Cupo usado" value={`${formatCop(usedLimitAmount)} (${formatPercent(usedLimitPct)})`} />
+        {hasInterestSavings ? (
+          <Metric
+            label="Ahorro intereses (vs baseline)"
+            value={formatCopWhole(projection.interestSavingsFromPrepayments)}
+          />
         ) : null}
-        {hasLimitMetrics ? (
-          <Metric label="Cupo liberado" value={formatCop(releasedLimitAmount)} />
+        {hasMonthsReduced ? (
+          <Metric label="Reduccion de plazo" value={`${projection.monthsReduced} meses`} />
         ) : null}
+        {hasUsedLimitMetric ? (
+          <Metric
+            label="Cupo usado"
+            value={`${formatCopWhole(usedLimitAmount)} (${formatPercent(usedLimitPct)})`}
+          />
+        ) : null}
+        {hasReleasedLimitMetric ? (
+          <Metric label="Cupo liberado" value={formatCopWhole(releasedLimitAmount)} />
+        ) : null}
+        <Metric label="% intereses" value={formatPercent(interestPct)} />
+        <Metric label="% deuda total" value={formatPercent(principalPct)} />
+        {hasHandlingFeeTotals ? (
+          <Metric label="% cuota manejo" value={formatPercent(handlingFeePct)} />
+        ) : null}
+        {hasInsuranceTotals ? <Metric label="% seguros" value={formatPercent(insurancePct)} /> : null}
       </div>
 
       {projection.alerts.hasNegativeAmortization ? (

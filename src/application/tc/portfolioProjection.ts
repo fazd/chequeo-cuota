@@ -296,7 +296,8 @@ function simulatePortfolioMonth(
   }
 
   const minimumPayment = Math.min(state.minimumPaymentAmount, totalPayment)
-  const extraPayment = Math.max(0, totalPayment - minimumPayment)
+  const extraPaymentRaw = Math.max(0, totalPayment - minimumPayment)
+  const extraPayment = Math.abs(extraPaymentRaw) < EPSILON ? 0 : extraPaymentRaw
   let endingDebt = beginningDebt + monthlyCharges - totalPayment
   if (Math.abs(endingDebt) < EPSILON) {
     endingDebt = 0

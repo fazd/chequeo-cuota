@@ -74,7 +74,7 @@ describe('CreditCardCalculatorPage functional', () => {
     ).toBe('text')
 
     expect(rendered.container.textContent).toContain('Tiene seguros')
-    expect(rendered.container.textContent).toContain('Quiero agregar aporte mensual')
+    expect(rendered.container.textContent).toContain('Quiero hacer abonos periodicos')
   })
 
   it('permite eliminar tarjetas desde el tab y oculta consolidado al volver a una tarjeta', async () => {
@@ -130,4 +130,45 @@ describe('CreditCardCalculatorPage functional', () => {
       'Cada tarjeta debe tener un nombre unico',
     )
   })
+
+  it('muestra mensaje de ahorro por tarjeta cuando hay aportes', async () => {
+    const rendered = await renderInDom(<CreditCardCalculatorPage />)
+    cleanupRef = rendered.cleanup
+
+    setInputValue(rendered.container, '#currentDebt-tc-1', '5000000')
+    setInputValue(rendered.container, '#termMonths-tc-1', '24')
+    setInputValue(rendered.container, '.tc-tab-panel input[type="number"][step="any"]', '24')
+
+    const periodicCheckbox = rendered.container.querySelector(
+      '#wantsPeriodicExtraPayments',
+    ) as HTMLInputElement | null
+    expect(periodicCheckbox).not.toBeNull()
+
+    if (!periodicCheckbox) return
+
+    act(() => {
+      periodicCheckbox.click()
+    })
+
+    setInputValue(rendered.container, '#periodicExtraAmount', '100000')
+    setInputValue(rendered.container, '#periodicExtraEveryMonths', '1')
+    clickTextButton('Calcular tarjeta')
+
+    expect(rendered.container.textContent).toContain(
+      'Gracias a los aportes adicionales en esta tarjeta',
+    )
+  })
 })
+
+function setInputValue(container: HTMLElement, selector: string, value: string) {
+  const input = container.querySelector(selector) as HTMLInputElement | null
+  if (!input) {
+    throw new Error(`Input not found: ${selector}`)
+  }
+
+  act(() => {
+    input.value = value
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+  })
+}
