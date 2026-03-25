@@ -30,6 +30,13 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     canonical: buildCanonical('/amortizacion-credito-libranza'),
     ogType: 'website',
   },
+  creditCard: {
+    title: 'Calculadora tarjeta de credito - Finanzas claras',
+    description:
+      'Simula deuda de tarjetas, compara estrategias de pago y revisa tu consolidado en una sola vista.',
+    canonical: buildCanonical('/calculadora-tarjeta-credito'),
+    ogType: 'website',
+  },
   blogIndex: {
     title: 'Blog de educacion financiera - Finanzas claras',
     description:

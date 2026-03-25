@@ -33,9 +33,9 @@ export const calculatorsRegistry: CalculatorModule[] = [
   {
     id: 'tarjeta-credito',
     name: 'Tarjeta de credito',
-    description: 'Calculadora activa para cuota y proyeccion en sistema frances.',
+    description: 'Simula tu deuda de tarjetas de credito, aportes y estrategia de pago.',
     path: '/calculadora-tarjeta-credito',
-    enabled: false,
+    enabled: true,
   },
   {
     id: 'cdt',
