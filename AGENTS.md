@@ -150,6 +150,7 @@ Reglas de comportamiento:
 - Al perder foco (tap fuera/scroll), el tooltip debe desaparecer.
 - Eje X y leyenda deben reservar espacio para evitar superposicion en mobile.
 - Series condicionadas: si no hay aportes, solo una linea; si no hay seguros, no mostrar barra de seguros.
+- En tablas de amortizacion de todas las calculadoras, ocultar columnas opcionales cuando todos sus valores absolutos esten por debajo de una delta pequena (epsilon), para evitar columnas visuales llenas de 0.
 - Al hacer scroll en mobile, cerrar teclado (blur del input activo).
 - No cerrar el teclado inmediatamente tras enfocar; solo cerrar en scroll real del usuario.
 
@@ -215,3 +216,15 @@ Estrategias de pago:
 Calidad:
 - Se agregan pruebas unitarias para dominio TC y aplicacion de consolidado/estrategias.
 - Politica vigente: cambios de negocio deben mantener enfoque TDD y pruebas de regresion.
+
+## 17) Plan de escalabilidad V2 (estado actual)
+Se documenta una propuesta de arquitectura para reducir repeticion al crear nuevas calculadoras en:
+
+- `design_documents/calculadoras_v2_arquitectura.md`
+
+Estado:
+- Implementacion parcial iniciada.
+- Fuente unica de calculadoras basada en manifest (`src/domain/calculators/manifest.json` + `manifest.ts`).
+- Routing de calculadoras, Home, Navbar y SEO de calculadoras consumen el manifest.
+- `sitemap.xml` se genera automaticamente desde manifest + blog MDX con `npm run generate:sitemap` (ejecutado en `build`).
+- Pendiente por fases posteriores: adapter/factory de paginas, schemas UI y scaffolder de nuevas calculadoras.

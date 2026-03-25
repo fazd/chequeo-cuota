@@ -166,7 +166,7 @@ function simulatePortfolioScenario(
     })
   }
 
-  const cards = states.map((state) => buildCardProjectionFromPortfolioRows(state, input.maxMonths))
+  const cards = states.map((state) => buildCardProjectionFromPortfolioRows(state))
   const totals = consolidatedSchedule.reduce(
     (acc, row) => ({
       totalBeginningDebt:
@@ -337,10 +337,7 @@ function buildRowWithLimit(
   }
 }
 
-function buildCardProjectionFromPortfolioRows(
-  state: CardRuntimeState,
-  _maxMonths: number,
-): CreditCardProjection {
+function buildCardProjectionFromPortfolioRows(state: CardRuntimeState): CreditCardProjection {
   const totals = state.rows.reduce(
     (acc, row) => ({
       totalInterest: acc.totalInterest + row.interest,

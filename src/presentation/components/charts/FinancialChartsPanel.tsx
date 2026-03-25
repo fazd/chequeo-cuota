@@ -71,8 +71,6 @@ export function FinancialChartsPanel({
 
   useEffect(() => {
     if (!isMobile) {
-      setHideBalanceTooltip(false)
-      setHideDistributionTooltip(false)
       return
     }
 
@@ -96,6 +94,9 @@ export function FinancialChartsPanel({
     }
   }, [isMobile])
 
+  const shouldHideBalanceTooltip = isMobile && hideBalanceTooltip
+  const shouldHideDistributionTooltip = isMobile && hideDistributionTooltip
+
   return (
     <section className="panel section">
       <div className="chart-grid">
@@ -115,7 +116,7 @@ export function FinancialChartsPanel({
                   width={isMobile ? 70 : 96}
                 />
                 <Tooltip
-                  content={<ChartTooltip isMobile={isMobile} isHidden={isMobile && hideBalanceTooltip} />}
+                  content={<ChartTooltip isMobile={isMobile} isHidden={shouldHideBalanceTooltip} />}
                   wrapperStyle={buildTooltipWrapperStyle(isMobile)}
                   allowEscapeViewBox={{ x: false, y: false }}
                 />
@@ -154,7 +155,9 @@ export function FinancialChartsPanel({
                   width={isMobile ? 70 : 96}
                 />
                 <Tooltip
-                  content={<ChartTooltip isMobile={isMobile} isHidden={isMobile && hideDistributionTooltip} />}
+                  content={
+                    <ChartTooltip isMobile={isMobile} isHidden={shouldHideDistributionTooltip} />
+                  }
                   wrapperStyle={buildTooltipWrapperStyle(isMobile)}
                   allowEscapeViewBox={{ x: false, y: false }}
                 />

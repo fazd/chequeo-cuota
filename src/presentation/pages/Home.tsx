@@ -1,53 +1,54 @@
 import { Link } from 'react-router-dom'
-import { calculatorsRegistry } from '../../domain/calculators/registry'
+import {
+  getHomeEnabledCalculators,
+  getHomeUpcomingCalculators,
+  type CalculatorIconKey,
+} from '../../domain/calculators/manifest'
 import { SeoHead } from '../seo/SeoHead'
 import { seoMetaByPath } from '../seo/meta'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faCar,
-  faHouse,
-  faPercent,
   faCalculator,
-  faMagnifyingGlass
+  faCar,
+  faCreditCard,
+  faHouse,
+  faMagnifyingGlass,
+  faPercent,
 } from '@fortawesome/free-solid-svg-icons'
 
-const iconByCalculatorId: Record<string, typeof faHouse> = {
-  hipotecario: faHouse,
-  vehicular: faCar,
-  libranza: faPercent,
+const iconByCalculatorKey: Record<CalculatorIconKey, typeof faHouse> = {
+  house: faHouse,
+  car: faCar,
+  percent: faPercent,
+  'credit-card': faCreditCard,
+  calculator: faCalculator,
 }
 
-export function Home() {
-  const upcomingCalculators = calculatorsRegistry.filter(
-    (calculator) => !calculator.enabled,
-  )
-  const activeCalculators = calculatorsRegistry.filter(
-    (calculator) => calculator.enabled,
-  )
+const activeCalculators = getHomeEnabledCalculators()
+const upcomingCalculators = getHomeUpcomingCalculators()
 
+export function Home() {
   return (
     <>
       <SeoHead meta={seoMetaByPath.home} />
       <section className="app-shell app-surface">
         <div className="hero hero-landing">
           <div className="hero-icon" aria-hidden>
-            <FontAwesomeIcon
-              icon={faMagnifyingGlass}
-            />
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
           </div>
           <h1 className="title">Finanzas claras</h1>
         </div>
 
         <p className="subtitle">
-          Plataforma educativa para entender mejor tu credito de vivienda,
-          tasas, amortizacion y estrategias de pago.
+          Plataforma educativa para entender mejor tu credito de vivienda, tasas,
+          amortizacion y estrategias de pago.
         </p>
 
         <section className="landing-block">
           <h2 className="landing-title">Como te ayudamos</h2>
           <p>
-            Finanzas Claras te permite entender conceptos clave y tomar
-            decisiones con mayor claridad antes de hablar con tu banco.
+            Finanzas Claras te permite entender conceptos clave y tomar decisiones
+            con mayor claridad antes de hablar con tu banco.
           </p>
         </section>
 
@@ -64,13 +65,13 @@ export function Home() {
                   <div className="card-title-row">
                     <span className="card-icon" aria-hidden>
                       <FontAwesomeIcon
-                        icon={iconByCalculatorId[calculator.id] ?? faCalculator}
+                        icon={iconByCalculatorKey[calculator.iconKey] ?? faCalculator}
                       />
                     </span>
                     <h3>{calculator.name}</h3>
                   </div>
                   <p>{calculator.description}</p>
-                  <span>Ir a calculadora</span>
+                  <span>{calculator.homeCard.ctaLabel}</span>
                 </article>
               </Link>
             ))}
@@ -85,7 +86,7 @@ export function Home() {
                 <div className="card-title-row">
                   <span className="card-icon" aria-hidden>
                     <FontAwesomeIcon
-                      icon={iconByCalculatorId[calculator.id] ?? faCalculator}
+                      icon={iconByCalculatorKey[calculator.iconKey] ?? faCalculator}
                     />
                   </span>
                   <h3>{calculator.name}</h3>

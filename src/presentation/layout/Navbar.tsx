@@ -1,15 +1,30 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import {
+  getNavbarCalculators,
+  getPrimaryCalculator,
+} from '../../domain/calculators/manifest'
 import logo from '../../assets/logo.png'
 
-const navItems = [
+interface NavItem {
+  to: string
+  label: string
+}
+
+const staticNavItems: NavItem[] = [
   { to: '/', label: 'Inicio' },
+  { to: '/como-funciona', label: 'Como funciona' },
   { to: '/blog', label: 'Blog' },
   { to: '/sobre', label: 'Sobre' },
-  { to: '/amortizacion-credito-vivienda', label: 'Credito vivienda' },
-  { to: '/amortizacion-credito-vehicular', label: 'Credito vehicular' },
-  { to: '/amortizacion-credito-libranza', label: 'Credito libranza' },
 ]
+
+const calculatorNavItems: NavItem[] = getNavbarCalculators().map((calculator) => ({
+  to: calculator.path,
+  label: calculator.nav.label,
+}))
+
+const navItems: NavItem[] = [...staticNavItems, ...calculatorNavItems]
+const primaryCalculatorPath = getPrimaryCalculator()?.path ?? '/'
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -59,6 +74,9 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
+          <Link to={primaryCalculatorPath} className="site-nav-cta" onClick={() => setOpen(false)}>
+            Calcular credito
+          </Link>
         </nav>
       </div>
     </header>

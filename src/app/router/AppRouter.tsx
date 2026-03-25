@@ -1,5 +1,9 @@
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, type ElementType } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import {
+  getEnabledCalculators,
+  type CalculatorRouteComponentKey,
+} from '../../domain/calculators/manifest'
 import { AppLayout } from '../../presentation/layout/AppLayout'
 
 const Home = lazy(() => import('../../presentation/pages/Home').then((m) => ({ default: m.Home })))
@@ -23,12 +27,39 @@ const CreditCardCalculatorPage = lazy(() =>
     default: m.CreditCardCalculatorPage,
   })),
 )
+const HowItWorksPage = lazy(() =>
+  import('../../presentation/pages/HowItWorksPage').then((m) => ({
+    default: m.HowItWorksPage,
+  })),
+)
 const BlogIndexPage = lazy(() => import('../../presentation/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('../../presentation/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })))
 const AboutPage = lazy(() => import('../../presentation/pages/AboutPage').then((m) => ({ default: m.AboutPage })))
 const PrivacyPage = lazy(() => import('../../presentation/pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('../../presentation/pages/TermsPage').then((m) => ({ default: m.TermsPage })))
 const NotFoundPage = lazy(() => import('../../presentation/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
+
+const calculatorPageByRouteComponent: Record<
+  CalculatorRouteComponentKey,
+  ElementType
+> = {
+  mortgage: MortgageAmortizationPage,
+  vehicle: VehicleLoanPage,
+  payroll: PayrollLoanPage,
+  creditCard: CreditCardCalculatorPage,
+}
+
+const calculatorRoutes = getEnabledCalculators().map((calculator) => {
+  if (!calculator.routeComponent) {
+    throw new Error(`Enabled calculator ${calculator.id} is missing routeComponent`)
+  }
+
+  return {
+    id: calculator.id,
+    path: calculator.path,
+    Component: calculatorPageByRouteComponent[calculator.routeComponent],
+  }
+})
 
 function ScrollToHash() {
   const location = useLocation()
@@ -56,10 +87,14 @@ export function AppRouter() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/amortizacion-credito-vivienda" element={<MortgageAmortizationPage />} />
-            <Route path="/amortizacion-credito-vehicular" element={<VehicleLoanPage />} />
-            <Route path="/amortizacion-credito-libranza" element={<PayrollLoanPage />} />
-            <Route path="/calculadora-tarjeta-credito" element={<CreditCardCalculatorPage />} />
+            <Route path="/como-funciona" element={<HowItWorksPage />} />
+            {calculatorRoutes.map((calculatorRoute) => (
+              <Route
+                key={calculatorRoute.id}
+                path={calculatorRoute.path}
+                element={<calculatorRoute.Component />}
+              />
+            ))}
             <Route path="/blog" element={<BlogIndexPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/sobre" element={<AboutPage />} />

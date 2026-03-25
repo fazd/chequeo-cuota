@@ -17,11 +17,13 @@ import { simulateCreditCard } from '../../domain/tc/simulator'
 import { formatCop, formatCopWhole, formatPercent } from '../../utils/currency'
 import {
   MoneyInput,
+} from '../components/MoneyInput'
+import {
   parseMoneyInputValue,
   parseOptionalMoneyInputValue,
-} from '../components/MoneyInput'
+} from '../components/moneyInput.utils'
 import { SeoHead } from '../seo/SeoHead'
-import { seoMetaByPath } from '../seo/meta'
+import { getCalculatorSeoMeta } from '../seo/meta'
 import { CreditCardCharts } from '../components/tc/CreditCardCharts'
 import { CreditCardSummaryCards } from '../components/tc/CreditCardSummaryCards'
 import { CreditCardTable } from '../components/tc/CreditCardTable'
@@ -185,7 +187,7 @@ export function CreditCardCalculatorPage() {
 
   return (
     <>
-      <SeoHead meta={seoMetaByPath.creditCard} />
+      <SeoHead meta={getCalculatorSeoMeta('tarjeta-credito')} />
       <section className="app-shell app-surface">
         <div className="hero hero-landing">
           <div className="hero-icon" aria-hidden>

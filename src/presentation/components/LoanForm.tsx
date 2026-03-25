@@ -4,9 +4,11 @@ import type { LoanInput } from '../../domain/loan.types'
 import { trackCalculoRealizado } from '../../application/analytics/events'
 import {
   MoneyInput,
+} from './MoneyInput'
+import {
   parseMoneyInputValue,
   parseOptionalMoneyInputValue,
-} from './MoneyInput'
+} from './moneyInput.utils'
 import { InsuranceCard } from './InsuranceCard'
 import {
   ExtraPaymentsCard,
@@ -441,5 +443,4 @@ function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {
   const monthlyNominalDue = rateDecimal / 12
   return Math.pow(1 + monthlyNominalDue, 12) - 1
 }
-
 

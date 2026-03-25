@@ -2,9 +2,11 @@ import type { ComponentProps } from 'react'
 import { useState } from 'react'
 import {
   MoneyInput,
+} from './MoneyInput'
+import {
   parseMoneyInputValue,
   parseOptionalMoneyInputValue,
-} from './MoneyInput'
+} from './moneyInput.utils'
 import { ExtraPaymentsCard, type ExtraPaymentRowDraft } from './ExtraPaymentsCard'
 import { InsuranceCard } from './InsuranceCard'
 
