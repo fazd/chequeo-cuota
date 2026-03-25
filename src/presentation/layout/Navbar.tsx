@@ -13,7 +13,6 @@ interface NavItem {
 
 const staticNavItems: NavItem[] = [
   { to: '/', label: 'Inicio' },
-  { to: '/como-funciona', label: 'Como funciona' },
   { to: '/blog', label: 'Blog' },
   { to: '/sobre', label: 'Sobre' },
 ]
@@ -74,8 +73,8 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          <Link to={primaryCalculatorPath} className="site-nav-cta" onClick={() => setOpen(false)}>
-            Calcular credito
+          <Link to="/#calculadoras" className="site-nav-cta" onClick={() => setOpen(false)}>
+            Explorar opciones
           </Link>
         </nav>
       </div>

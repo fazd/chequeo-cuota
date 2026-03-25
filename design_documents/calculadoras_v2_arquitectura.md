@@ -409,7 +409,7 @@ Objetivo inicial:
 ## 10) Decisiones abiertas a confirmar
 
 1. Mantener rutas explicitas (`/amortizacion-credito-...`) o migrar a ruta parametrica (`/calculadora/:id`)?
-2. `como-funciona` se mantiene obligatorio en la arquitectura objetivo?
+2. `como-funciona` se mantiene como pieza histórica: actual el onboarding se desplaza a blog/landing.
 3. Sitemap se genera en build local, CI o ambos?
 4. El primer alcance de `gen:calculator` incluye pagina UI completa o solo dominio/aplicacion + manifest?
 

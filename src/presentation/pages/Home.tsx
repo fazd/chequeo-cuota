@@ -4,6 +4,7 @@ import {
   getHomeUpcomingCalculators,
   type CalculatorIconKey,
 } from '../../domain/calculators/manifest'
+import { getAllUseCases, getIconByKey } from '../../domain/useCases/manifest'
 import { SeoHead } from '../seo/SeoHead'
 import { seoMetaByPath } from '../seo/meta'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -28,6 +29,7 @@ const iconByCalculatorKey: Record<CalculatorIconKey, typeof faHouse> = {
   calculator: faCalculator,
 }
 
+const useCases = getAllUseCases()
 const activeCalculators = getHomeEnabledCalculators()
 const upcomingCalculators = getHomeUpcomingCalculators()
 const primaryCalculatorPath = activeCalculators[0]?.path ?? '/'
@@ -42,23 +44,46 @@ export function Home() {
             <div className="hero-icon" aria-hidden>
               <FontAwesomeIcon icon={faMagnifyingGlass} />
             </div>
-            <p className="landing-kicker">Simuladores financieros claros</p>
+            <p className="landing-kicker">Toma el control de tus deudas</p>
           </div>
           <h1 className="landing-main-title">
-            Entiende tu cuota antes de hablar con tu banco
+            Decide con claridad sobre tus deudas
           </h1>
           <p className="landing-lead">
             Calcula, compara escenarios y toma decisiones con confianza en menos de 3
             minutos.
           </p>
           <div className="landing-hero-actions">
-            <Link to={primaryCalculatorPath} className="landing-cta-primary">
-              Ir a la calculadora
+            <Link to="/#calculadoras" className="landing-cta-primary">
+              Elige tu calculadora
               <FontAwesomeIcon icon={faArrowRight} />
             </Link>
-            <Link to="/como-funciona" className="landing-cta-secondary">
-              Como funciona
-            </Link>
+          </div>
+        </section>
+
+        <section id="que-quieres-entender-hoy" className="landing-block">
+          <h2 className="landing-title">¿Qué quieres entender hoy?</h2>
+          <p className="landing-section-lead">
+            Elige tu situación y te guiaremos a la calculadora correcta.
+          </p>
+          <div className="upcoming-grid">
+            {useCases.map((useCase) => (
+              <Link
+                key={useCase.id}
+                to={useCase.calculatorPath}
+                className="upcoming-card-link"
+              >
+                <article className="upcoming-card upcoming-card-active">
+                  <div className="card-title-row">
+                    <span className="card-icon" aria-hidden>
+                      <FontAwesomeIcon icon={getIconByKey(useCase.iconKey)} />
+                    </span>
+                    <h3>{useCase.title}</h3>
+                  </div>
+                  <p>{useCase.description}</p>
+                </article>
+              </Link>
+            ))}
           </div>
         </section>
 
@@ -88,27 +113,6 @@ export function Home() {
                 </article>
               </Link>
             ))}
-          </div>
-        </section>
-
-        <section id="como-funciona" className="landing-block">
-          <h2 className="landing-title">Como funciona</h2>
-          <div className="landing-steps">
-            <article className="landing-step-card">
-              <span className="landing-step-pill">Paso 1</span>
-              <h3>Ingresa tus datos</h3>
-              <p>Saldo, tasa y plazo restante.</p>
-            </article>
-            <article className="landing-step-card">
-              <span className="landing-step-pill">Paso 2</span>
-              <h3>Compara escenarios</h3>
-              <p>Revisa cuota, interes y tiempo.</p>
-            </article>
-            <article className="landing-step-card">
-              <span className="landing-step-pill">Paso 3</span>
-              <h3>Decide con claridad</h3>
-              <p>Lleva una base objetiva al banco.</p>
-            </article>
           </div>
         </section>
 

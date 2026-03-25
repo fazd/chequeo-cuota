@@ -10,13 +10,7 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     canonical: buildCanonical('/'),
     ogType: 'website',
   },
-  howItWorks: {
-    title: 'Como funciona el sistema frances - Finanzas claras',
-    description:
-      'Entiende formula, tasa mensual y lectura de la tabla de amortizacion para validar tu cuota.',
-    canonical: buildCanonical('/como-funciona'),
-    ogType: 'website',
-  },
+
   blogIndex: {
     title: 'Blog de educacion financiera - Finanzas claras',
     description:

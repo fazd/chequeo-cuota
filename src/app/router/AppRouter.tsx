@@ -87,7 +87,6 @@ export function AppRouter() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/como-funciona" element={<HowItWorksPage />} />
             {calculatorRoutes.map((calculatorRoute) => (
               <Route
                 key={calculatorRoute.id}

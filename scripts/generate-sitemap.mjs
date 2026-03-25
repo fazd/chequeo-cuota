@@ -11,7 +11,6 @@ const siteUrl = process.env.VITE_SITE_URL ?? 'https://finanzasclaras.app'
 
 const staticPaths = [
   '/',
-  '/como-funciona',
   '/blog',
   '/sobre',
   '/privacidad',

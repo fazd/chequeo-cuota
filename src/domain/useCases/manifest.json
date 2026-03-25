@@ -1,0 +1,51 @@
+[
+  {
+    "id": "mortgage-understanding",
+    "title": "Tengo un crédito hipotecario",
+    "description": "Visualiza tu tabla completa y estrategias para ahorrar interés",
+    "iconKey": "house",
+    "calculatorPath": "/amortizacion-credito-vivienda"
+  },
+  {
+    "id": "mortgage-proposal",
+    "title": "Me propusieron una cuota para mi apto",
+    "description": "Valida la cuota propuesta mes a mes",
+    "iconKey": "receipt",
+    "calculatorPath": "/amortizacion-credito-vivienda"
+  },
+  {
+    "id": "vehicle-accelerate",
+    "title": "Tengo un carro o moto",
+    "description": "Simula aportes extra y reduce tu plazo",
+    "iconKey": "car",
+    "calculatorPath": "/amortizacion-credito-vehicular"
+  },
+  {
+    "id": "vehicle-proposal",
+    "title": "Me propusieron un plan de pagos",
+    "description": "Valida el plan propuesto con detalle",
+    "iconKey": "chart-line",
+    "calculatorPath": "/amortizacion-credito-vehicular"
+  },
+  {
+    "id": "icetex",
+    "title": "Tengo un crédito ICETEX",
+    "description": "Calcula aportes para terminar más rápido",
+    "iconKey": "graduation-cap",
+    "calculatorPath": "/amortizacion-credito-libranza"
+  },
+  {
+    "id": "personal-loan",
+    "title": "Hice un préstamo",
+    "description": "Analiza tu cronograma y opciones de ahorro",
+    "iconKey": "money-bill-wave",
+    "calculatorPath": "/amortizacion-credito-libranza"
+  },
+  {
+    "id": "future-loan",
+    "title": "Quiero hacer un préstamo",
+    "description": "Calcula tu cuota según tu plazo deseado",
+    "iconKey": "calculator",
+    "calculatorPath": "/amortizacion-credito-libranza"
+  }
+]

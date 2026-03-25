@@ -29,7 +29,6 @@ Reglas:
 Se adopta React Router con rutas canonicas:
 
 - `/`
-- `/como-funciona`
 - `/blog`
 - `/blog/:slug`
 - `/sobre`
