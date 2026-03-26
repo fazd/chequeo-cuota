@@ -91,7 +91,7 @@
     "name": "Tarjeta de credito",
     "description": "Simula tu deuda de tarjetas de credito, aportes y estrategia de pago.",
     "path": "/calculadora-tarjeta-credito",
-    "enabled": false,
+    "enabled": true,
     "pageKind": "credit-card-portfolio",
     "routeComponent": "creditCard",
     "iconKey": "credit-card",

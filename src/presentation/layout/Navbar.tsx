@@ -73,7 +73,19 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          <Link to="/#calculadoras" className="site-nav-cta" onClick={() => setOpen(false)}>
+          <Link
+            to="/#calculadoras"
+            className="site-nav-cta"
+            onClick={(event) => {
+              event.preventDefault()
+              const target = document.querySelector('#calculadoras')
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+              window.history.pushState({}, '', '/#calculadoras')
+              setOpen(false)
+            }}
+          >
             Explorar opciones
           </Link>
         </nav>

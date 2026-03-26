@@ -54,7 +54,18 @@ export function Home() {
             minutos.
           </p>
           <div className="landing-hero-actions">
-            <Link to="/#calculadoras" className="landing-cta-primary">
+            <Link
+              to="/#calculadoras"
+              className="landing-cta-primary"
+              onClick={(event) => {
+                event.preventDefault()
+                const target = document.querySelector('#calculadoras')
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+                window.history.pushState({}, '', '/#calculadoras')
+              }}
+            >
               Elige tu calculadora
               <FontAwesomeIcon icon={faArrowRight} />
             </Link>
@@ -188,7 +199,7 @@ export function Home() {
 
         <section className="landing-final-cta panel">
           <h2>Empieza tu simulacion hoy</h2>
-          <p>Un punto de partida claro para negociar mejor tu credito.</p>
+          <p>Un punto de partida claro para negociar mejor tu credito de vivienda.</p>
           <Link to={primaryCalculatorPath} className="landing-cta-primary">
             Simular ahora
             <FontAwesomeIcon icon={faArrowRight} />
