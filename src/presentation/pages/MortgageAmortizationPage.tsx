@@ -1,8 +1,11 @@
-import { useMemo, useState, lazy, Suspense, useRef, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import { getAllBlogPosts } from '../../application/blog/blogContent'
-import { buildLoanSummary } from '../../application/loanSummary'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import { getSuggestedBlogPosts } from '../../application/blog/blogContent'
 import { calculateProjection } from '../../application/calculateProjection'
+import { buildLoanSummary } from '../../application/loanSummary'
+import { getCalculatorById } from '../../domain/calculators/manifest'
 import type { LoanInput, LoanProjection } from '../../domain/loan.types'
 import { formatCop } from '../../utils/currency'
 import { AmortizationTable } from '../components/AmortizationTable'
@@ -10,16 +13,17 @@ import { ExportCSVButton } from '../components/ExportCSVButton'
 import { LoanForm } from '../components/LoanForm'
 import { SummaryCards } from '../components/SummaryCards'
 import { SeoHead } from '../seo/SeoHead'
-import { seoMetaByPath } from '../seo/meta'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import { getCalculatorSeoMeta } from '../seo/meta'
 
 const Charts = lazy(() => import('../components/Charts').then((m) => ({ default: m.Charts })))
+
+const suggestedPosts = getSuggestedBlogPosts(
+  getCalculatorById('hipotecario').blogSuggestions,
+)
 
 export function MortgageAmortizationPage() {
   const [projection, setProjection] = useState<LoanProjection | null>(null)
   const resultsRef = useRef<HTMLDivElement | null>(null)
-  const suggestedPosts = useMemo(() => getSuggestedPosts(), [])
 
   function handleCalculate(input: LoanInput) {
     setProjection(calculateProjection(input))
@@ -42,7 +46,7 @@ export function MortgageAmortizationPage() {
 
   return (
     <>
-      <SeoHead meta={seoMetaByPath.mortgageAmortization} />
+      <SeoHead meta={getCalculatorSeoMeta('hipotecario')} />
       <section className="app-shell app-surface">
         <div className="hero hero-landing">
           <div className="hero-icon" aria-hidden>
@@ -52,7 +56,8 @@ export function MortgageAmortizationPage() {
         </div>
 
         <p className="subtitle">
-          Calcula tu tabla de amortizacion, valida cuota teorica y analiza impacto de aportes extra.
+          Calcula tu tabla de amortizacion, valida cuota teorica y analiza impacto de
+          aportes extra.
         </p>
 
         <section className="landing-block">
@@ -65,8 +70,8 @@ export function MortgageAmortizationPage() {
             {showSavingsSummary ? (
               <p className="savings-summary">
                 Gracias a los aportes adicionales, ahorras{' '}
-                {formatCop(summary.interestSavingsFromPrepayments)} en intereses y
-                reduces el plazo en {formatMonths(summary.monthsReduced)}.
+                {formatCop(summary.interestSavingsFromPrepayments)} en intereses y reduces
+                el plazo en {formatMonths(summary.monthsReduced)}.
               </p>
             ) : null}
 
@@ -115,24 +120,5 @@ function formatMonths(months: number): string {
     return `${months} meses`
   }
 
-  return `${years} años y ${remainingMonths} meses`
-}
-
-function getSuggestedPosts() {
-  const allPosts = getAllBlogPosts()
-  const prioritySlugs = [
-    'sistema-frances',
-    'ea-vs-nominal-vencida',
-    'reducir-plazo-vs-reducir-cuota',
-  ]
-
-  const priorityPosts = prioritySlugs
-    .map((slug) => allPosts.find((post) => post.slug === slug))
-    .filter((post): post is NonNullable<typeof post> => post != null)
-
-  const remainingPosts = allPosts.filter(
-    (post) => !priorityPosts.some((selected) => selected.slug === post.slug),
-  )
-
-  return [...priorityPosts, ...remainingPosts].slice(0, 3)
+  return `${years} anos y ${remainingMonths} meses`
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { LoanSummary } from '../../application/loanSummary'
 import type { LoanProjection } from '../../domain/loan.types'
-import { formatCop, formatPercent } from '../../utils/currency'
+import { formatCopWhole, formatPercent } from '../../utils/currency'
 
 interface SummaryCardsProps {
   projection: LoanProjection
@@ -21,21 +21,21 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
     {
       label: 'Cuota teorica sin seguro',
       rawValue: projection.theoreticalInstallmentExInsurance,
-      value: formatCop(projection.theoreticalInstallmentExInsurance),
+      value: formatCopWhole(projection.theoreticalInstallmentExInsurance),
       description:
         'Pago mensual estimado del credito incluyendo solo interes y capital, sin seguros.',
     },
     {
       label: 'Cuota teorica con seguro',
       rawValue: projection.theoreticalInstallmentInclInsurance,
-      value: formatCop(projection.theoreticalInstallmentInclInsurance),
+      value: formatCopWhole(projection.theoreticalInstallmentInclInsurance),
       description:
         'Pago mensual estimado sumando interes, capital y seguros configurados en la simulacion.',
     },
     {
       label: 'Cuota banco normalizada',
       rawValue: projection.bankInstallmentNormalized,
-      value: formatCop(projection.bankInstallmentNormalized),
+      value: formatCopWhole(projection.bankInstallmentNormalized),
       description:
         'Cuota reportada del banco ajustada al mismo criterio de calculo para compararla con la teorica.',
       requiresBankComparison: true,
@@ -43,7 +43,7 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
     {
       label: 'Diferencia',
       rawValue: projection.installmentDifference,
-      value: `${formatCop(projection.installmentDifference)} (${formatPercent(
+      value: `${formatCopWhole(projection.installmentDifference)} (${formatPercent(
         projection.installmentDifferencePct,
       )})`,
       description:
@@ -53,32 +53,32 @@ export function SummaryCards({ projection, summary }: SummaryCardsProps) {
     {
       label: 'Total intereses',
       rawValue: summary.totalInterest,
-      value: formatCop(summary.totalInterest),
+      value: formatCopWhole(summary.totalInterest),
       description: 'Suma total pagada por intereses durante todo el plazo proyectado.',
     },
     {
       label: 'Total capital',
       rawValue: summary.totalPrincipal,
-      value: formatCop(summary.totalPrincipal),
+      value: formatCopWhole(summary.totalPrincipal),
       description: 'Suma total abonada al capital de la deuda durante la proyeccion.',
     },
     {
       label: 'Total seguros',
       rawValue: summary.totalInsurance,
-      value: formatCop(summary.totalInsurance),
+      value: formatCopWhole(summary.totalInsurance),
       description: 'Valor acumulado de seguros pagados en toda la vida proyectada del credito.',
     },
     {
       label: 'Total pagado',
       rawValue: summary.totalPaid,
-      value: formatCop(summary.totalPaid),
+      value: formatCopWhole(summary.totalPaid),
       description:
         'Suma global pagada en la proyeccion: capital + intereses + seguros.',
     },
     {
       label: 'Ahorro de intereses (abonos)',
       rawValue: summary.interestSavingsFromPrepayments,
-      value: formatCop(summary.interestSavingsFromPrepayments),
+      value: formatCopWhole(summary.interestSavingsFromPrepayments),
       description:
         'Intereses que dejas de pagar gracias a los aportes adicionales frente al escenario base.',
     },

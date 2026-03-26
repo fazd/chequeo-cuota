@@ -1,15 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import {
+  getNavbarCalculators,
+} from '../../domain/calculators/manifest'
 import logo from '../../assets/logo.png'
 
-const navItems = [
+interface NavItem {
+  to: string
+  label: string
+}
+
+const staticNavItems: NavItem[] = [
   { to: '/', label: 'Inicio' },
   { to: '/blog', label: 'Blog' },
   { to: '/sobre', label: 'Sobre' },
-  { to: '/amortizacion-credito-vivienda', label: 'Credito vivienda' },
-  { to: '/amortizacion-credito-vehicular', label: 'Credito vehicular' },
-  { to: '/amortizacion-credito-libranza', label: 'Credito libranza' },
 ]
+
+const calculatorNavItems: NavItem[] = getNavbarCalculators().map((calculator) => ({
+  to: calculator.path,
+  label: calculator.nav.label,
+}))
+
+const navItems: NavItem[] = [...staticNavItems, ...calculatorNavItems]
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -59,6 +71,21 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
+          <Link
+            to="/#calculadoras"
+            className="site-nav-cta"
+            onClick={(event) => {
+              event.preventDefault()
+              const target = document.querySelector('#calculadoras')
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+              window.history.pushState({}, '', '/#calculadoras')
+              setOpen(false)
+            }}
+          >
+            Explorar opciones
+          </Link>
         </nav>
       </div>
     </header>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import type { ComponentType } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { NotFoundPage } from './NotFoundPage'
 import { getBlogPostBySlug } from '../../application/blog/blogContent'
@@ -27,7 +28,7 @@ export function BlogPostPage() {
     ogType: 'article' as const,
   }
 
-  const PostComponent = post.Component
+  const PostComponent = post.Component as ComponentType
 
   return (
     <article className="app-shell blog-post-wrap">

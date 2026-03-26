@@ -1,14 +1,15 @@
-import type { ComponentType } from 'react'
 import type { BlogFrontmatter, BlogPostMeta } from '../../domain/content.types'
 import { slugify } from '../../utils/slugify'
 
+type MdxComponent = () => unknown
+
 interface BlogModule {
-  default: ComponentType
+  default: MdxComponent
   frontmatter?: BlogFrontmatter
 }
 
 export interface BlogPostEntry extends BlogPostMeta {
-  Component: ComponentType
+  Component: MdxComponent
 }
 
 const blogModules = import.meta.glob('../../content/blog/*.mdx', {
@@ -22,13 +23,36 @@ const blogRawModules = import.meta.glob('../../content/blog/*.mdx', {
 
 export function getAllBlogPosts(): BlogPostMeta[] {
   return buildBlogEntries()
-    .map(({ Component: _, ...meta }) => meta)
+    .map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      date: post.date,
+      excerpt: post.excerpt,
+      readingTime: post.readingTime,
+      coverImage: post.coverImage,
+      tags: post.tags,
+    }))
     .sort((a, b) => +new Date(b.date) - +new Date(a.date))
 }
 
 export function getBlogPostBySlug(slug: string): BlogPostEntry | null {
   const normalizedSlug = slugify(slug)
   return buildBlogEntries().find((post) => post.slug === normalizedSlug) ?? null
+}
+
+export function getSuggestedBlogPosts(prioritySlugs: string[], limit = 3): BlogPostMeta[] {
+  const allPosts = getAllBlogPosts()
+  const normalizedPriority = prioritySlugs.map((slug) => slugify(slug))
+
+  const priorityPosts = normalizedPriority
+    .map((slug) => allPosts.find((post) => post.slug === slug))
+    .filter((post): post is BlogPostMeta => post != null)
+
+  const remainingPosts = allPosts.filter(
+    (post) => !priorityPosts.some((selected) => selected.slug === post.slug),
+  )
+
+  return [...priorityPosts, ...remainingPosts].slice(0, limit)
 }
 
 function buildBlogEntries(): BlogPostEntry[] {
@@ -77,7 +101,7 @@ function estimateReadingTimeFromContent(rawContent: string): number {
     .replace(/\$\$[\s\S]*?\$\$/g, ' ')
     .replace(/`[^`]*`/g, ' ')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/[#>*_[\]\(\)\-]/g, ' ')
+    .replace(/[#>*_[\]()-]/g, ' ')
 
   const words = normalizedContent.match(/[A-Za-zÀ-ÿ0-9]+/g)?.length ?? 0
 

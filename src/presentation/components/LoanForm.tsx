@@ -1,14 +1,21 @@
 import type { ComponentProps, ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { LoanInput } from '../../domain/loan.types'
 import { trackCalculoRealizado } from '../../application/analytics/events'
+import {
+  MoneyInput,
+} from './MoneyInput'
+import {
+  parseMoneyInputValue,
+  parseOptionalMoneyInputValue,
+} from './moneyInput.utils'
+import { InsuranceCard } from './InsuranceCard'
+import {
+  ExtraPaymentsCard,
+  type ExtraPaymentRowDraft,
+} from './ExtraPaymentsCard'
 interface LoanFormProps {
   onCalculate: (input: LoanInput) => void
-}
-
-interface ExtraordinaryRow {
-  month: string
-  amount: string
 }
 
 type RateType = 'effectiveAnnual' | 'nominalDue'
@@ -29,7 +36,7 @@ interface FormState {
   periodicExtraEveryMonths: string
   periodicExtraOccurrences: string
   wantsExtraordinaryExtraPayments: boolean
-  extraordinaryRows: ExtraordinaryRow[]
+  extraordinaryRows: ExtraPaymentRowDraft[]
 }
 
 const initialState: FormState = {
@@ -55,46 +62,12 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
   const [form, setForm] = useState<FormState>(initialState)
   const [error, setError] = useState<string | null>(null)
 
-  const termMonthsValue = Number(form.termMonths)
-  const canAddExtraordinary =
-    Number.isFinite(termMonthsValue) &&
-    termMonthsValue > 0 &&
-    form.extraordinaryRows.length < termMonthsValue
   const showInsuranceCard = form.bankPaymentIncludesInsurance === 'true'
   const insuranceBadge = '2'
   const extraPaymentsBadge = showInsuranceCard ? '3' : '2'
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
-  }
-
-  function updateExtraordinaryRow(
-    index: number,
-    key: keyof ExtraordinaryRow,
-    value: string,
-  ) {
-    setForm((prev) => ({
-      ...prev,
-      extraordinaryRows: prev.extraordinaryRows.map((row, rowIndex) =>
-        rowIndex === index ? { ...row, [key]: value } : row,
-      ),
-    }))
-  }
-
-  function addExtraordinaryRow() {
-    setForm((prev) => ({
-      ...prev,
-      extraordinaryRows: [...prev.extraordinaryRows, { month: '', amount: '' }],
-    }))
-  }
-
-  function removeExtraordinaryRow(index: number) {
-    setForm((prev) => ({
-      ...prev,
-      extraordinaryRows: prev.extraordinaryRows.filter(
-        (_, rowIndex) => rowIndex !== index,
-      ),
-    }))
   }
 
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = (event) => {
@@ -201,52 +174,6 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       extraordinaryExtraPayments,
     })
   }
-
-  const activeExtraRows = useMemo(
-    () =>
-      form.extraordinaryRows.map((row, index) => (
-        <div key={index} className="extra-row">
-          <div className="field">
-            <LabelWithTooltip
-              htmlFor={`extraMonth-${index}`}
-              label="Mes del abono"
-              tooltip="Numero de mes futuro en el que haras el aporte."
-            />
-            <input
-              id={`extraMonth-${index}`}
-              type="number"
-              min={1}
-              step={1}
-              value={row.month}
-              onChange={(event) =>
-                updateExtraordinaryRow(index, 'month', event.target.value)
-              }
-            />
-          </div>
-          <div className="field">
-            <LabelWithTooltip
-              htmlFor={`extraAmount-${index}`}
-              label="Valor del abono"
-              tooltip="Monto adicional que pagas en ese mes."
-            />
-            <MoneyInput
-              id={`extraAmount-${index}`}
-              value={row.amount}
-              onChange={(value) => updateExtraordinaryRow(index, 'amount', value)}
-            />
-          </div>
-          <button
-            type="button"
-            className="btn-danger"
-            onClick={() => removeExtraordinaryRow(index)}
-            aria-label={`Eliminar abono ${index + 1}`}
-          >
-            Eliminar
-          </button>
-        </div>
-      )),
-    [form.extraordinaryRows],
-  )
 
   return (
     <form className="form-stack" onSubmit={handleSubmit}>
@@ -368,182 +295,53 @@ export function LoanForm({ onCalculate }: LoanFormProps) {
       </SectionCard>
 
       {showInsuranceCard ? (
-        <SectionCard
+        <InsuranceCard
           badge={insuranceBadge}
-          title="Seguros"
+          idPrefix="loan"
           description="Configura los seguros asociados a tu credito."
-        >
-          <div className="choice-group choice-group-inline">
-            <div className="choice-with-tip">
-              <label className="choice-item" htmlFor="hasFixedInsurance">
-                <input
-                  id="hasFixedInsurance"
-                  type="checkbox"
-                  checked={form.hasFixedInsurance}
-                  onChange={(event) =>
-                    updateField('hasFixedInsurance', event.target.checked)
-                  }
-                />
-                Seguro fijo
-              </label>
-              <TooltipInfo text="Seguro con valor mensual constante." />
-            </div>
-            <div className="choice-with-tip">
-              <label className="choice-item" htmlFor="hasVariableInsurance">
-                <input
-                  id="hasVariableInsurance"
-                  type="checkbox"
-                  checked={form.hasVariableInsurance}
-                  onChange={(event) =>
-                    updateField('hasVariableInsurance', event.target.checked)
-                  }
-                />
-                Seguro variable
-              </label>
-              <TooltipInfo text="Seguro calculado como porcentaje sobre saldo." />
-            </div>
-          </div>
-
-          <div className="inline-grid-2">
-            {form.hasFixedInsurance ? (
-              <div className="field">
-                <LabelWithTooltip
-                  htmlFor="monthlyInsurance"
-                  label="Valor del seguro fijo"
-                  tooltip="Monto mensual fijo del seguro asociado al credito."
-                />
-                <MoneyInput
-                  id="monthlyInsurance"
-                  value={form.monthlyInsurance}
-                  onChange={(value) => updateField('monthlyInsurance', value)}
-                />
-              </div>
-            ) : null}
-
-            {form.hasVariableInsurance ? (
-              <div className="field">
-                <LabelWithTooltip
-                  htmlFor="monthlyLifeInsuranceRatePct"
-                  label="Interes del seguro variable (%)"
-                  tooltip="Porcentaje mensual aplicado sobre el saldo pendiente."
-                />
-                <input
-                  id="monthlyLifeInsuranceRatePct"
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={form.monthlyLifeInsuranceRatePct}
-                  onChange={(event) =>
-                    updateField('monthlyLifeInsuranceRatePct', event.target.value)
-                  }
-                />
-              </div>
-            ) : null}
-          </div>
-        </SectionCard>
+          allowVariable
+          state={{
+            hasFixedInsurance: form.hasFixedInsurance,
+            monthlyInsurance: form.monthlyInsurance,
+            hasVariableInsurance: form.hasVariableInsurance,
+            monthlyLifeInsuranceRatePct: form.monthlyLifeInsuranceRatePct,
+          }}
+          onChange={(next) =>
+            setForm((prev) => ({
+              ...prev,
+              hasFixedInsurance: next.hasFixedInsurance,
+              monthlyInsurance: next.monthlyInsurance,
+              hasVariableInsurance: next.hasVariableInsurance,
+              monthlyLifeInsuranceRatePct: next.monthlyLifeInsuranceRatePct,
+            }))
+          }
+        />
       ) : null}
 
-      <SectionCard
+      <ExtraPaymentsCard
         badge={extraPaymentsBadge}
-        title="Aportes adicionales"
         description="Define tu estrategia de abonos periodicos y/o extraordinarios."
-      >
-        <div className="choice-with-tip">
-          <label className="choice-item" htmlFor="wantsPeriodicExtraPayments">
-            <input
-              id="wantsPeriodicExtraPayments"
-              type="checkbox"
-              checked={form.wantsPeriodicExtraPayments}
-              onChange={(event) =>
-                updateField('wantsPeriodicExtraPayments', event.target.checked)
-              }
-            />
-            Quiero hacer abonos periodicos
-          </label>
-          <TooltipInfo text="Abonos que se repiten cada ciertos meses." />
-        </div>
-
-        {form.wantsPeriodicExtraPayments ? (
-          <div className="form-grid form-grid-three">
-            <div className="field">
-              <LabelWithTooltip
-                htmlFor="periodicExtraAmount"
-                label="Monto del abono"
-                tooltip="Valor adicional que pagas periodicamente."
-              />
-              <MoneyInput
-                id="periodicExtraAmount"
-                value={form.periodicExtraAmount}
-                onChange={(value) => updateField('periodicExtraAmount', value)}
-              />
-            </div>
-            <div className="field">
-              <LabelWithTooltip
-                htmlFor="periodicExtraEveryMonths"
-                label="Cada cuantos meses"
-                tooltip="Frecuencia de los abonos periodicos."
-              />
-              <input
-                id="periodicExtraEveryMonths"
-                type="number"
-                min={1}
-                step={1}
-                value={form.periodicExtraEveryMonths}
-                onChange={(event) =>
-                  updateField('periodicExtraEveryMonths', event.target.value)
-                }
-              />
-            </div>
-            <div className="field">
-              <LabelWithTooltip
-                htmlFor="periodicExtraOccurrences"
-                label="Cuantas veces (opcional)"
-                tooltip="Numero maximo de abonos periodicos. Si se deja vacio, se aplican hasta el final del credito."
-              />
-              <input
-                id="periodicExtraOccurrences"
-                type="number"
-                min={1}
-                step={1}
-                value={form.periodicExtraOccurrences}
-                onChange={(event) =>
-                  updateField('periodicExtraOccurrences', event.target.value)
-                }
-              />
-            </div>
-          </div>
-        ) : null}
-
-        <div className="choice-with-tip">
-          <label className="choice-item" htmlFor="wantsExtraordinaryExtraPayments">
-            <input
-              id="wantsExtraordinaryExtraPayments"
-              type="checkbox"
-              checked={form.wantsExtraordinaryExtraPayments}
-              onChange={(event) =>
-                updateField('wantsExtraordinaryExtraPayments', event.target.checked)
-              }
-            />
-            Quiero hacer abonos extraordinarios
-          </label>
-          <TooltipInfo text="Abonos puntuales en meses especificos." />
-        </div>
-
-        {form.wantsExtraordinaryExtraPayments ? (
-          <>
-            {activeExtraRows}
-            {canAddExtraordinary ? (
-              <button
-                type="button"
-                className="btn-secondary btn-small"
-                onClick={addExtraordinaryRow}
-              >
-                + Agregar abono extraordinario
-              </button>
-            ) : null}
-          </>
-        ) : null}
-      </SectionCard>
+        termMonths={Number(form.termMonths)}
+        state={{
+          wantsPeriodicExtraPayments: form.wantsPeriodicExtraPayments,
+          periodicExtraAmount: form.periodicExtraAmount,
+          periodicExtraEveryMonths: form.periodicExtraEveryMonths,
+          periodicExtraOccurrences: form.periodicExtraOccurrences,
+          wantsExtraordinaryExtraPayments: form.wantsExtraordinaryExtraPayments,
+          extraordinaryRows: form.extraordinaryRows,
+        }}
+        onChange={(next) =>
+          setForm((prev) => ({
+            ...prev,
+            wantsPeriodicExtraPayments: next.wantsPeriodicExtraPayments,
+            periodicExtraAmount: next.periodicExtraAmount,
+            periodicExtraEveryMonths: next.periodicExtraEveryMonths,
+            periodicExtraOccurrences: next.periodicExtraOccurrences,
+            wantsExtraordinaryExtraPayments: next.wantsExtraordinaryExtraPayments,
+            extraordinaryRows: next.extraordinaryRows,
+          }))
+        }
+      />
 
       {error ? <div className="field-error">{error}</div> : null}
 
@@ -577,28 +375,6 @@ function SectionCard({ badge, title, description, children }: SectionCardProps) 
       </header>
       <div className="form-card-content">{children}</div>
     </section>
-  )
-}
-
-interface MoneyInputProps {
-  id: string
-  value: string
-  onChange: (value: string) => void
-}
-
-function MoneyInput({ id, value, onChange }: MoneyInputProps) {
-  return (
-    <div className="money-input-wrap">
-      <span className="money-prefix">$</span>
-      <input
-        id={id}
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        value={value}
-        onChange={(event) => onChange(formatMoneyInput(event.target.value))}
-      />
-    </div>
   )
 }
 
@@ -657,32 +433,6 @@ function TooltipInfo({ text }: TooltipInfoProps) {
   )
 }
 
-function formatMoneyInput(rawValue: string): string {
-  const digits = rawValue.replace(/\D/g, '')
-  if (digits === '') {
-    return ''
-  }
-
-  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-}
-
-function parseMoneyInputValue(rawValue: string): number {
-  if (rawValue.trim() === '') {
-    return NaN
-  }
-
-  const normalized = rawValue.replace(/\./g, '').replace(/\s/g, '').replace(',', '.')
-  return Number(normalized)
-}
-
-function parseOptionalMoneyInputValue(rawValue: string): number | undefined {
-  if (rawValue.trim() === '') {
-    return undefined
-  }
-
-  return parseMoneyInputValue(rawValue)
-}
-
 function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {
   const rateDecimal = ratePct / 100
 
@@ -693,9 +443,4 @@ function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {
   const monthlyNominalDue = rateDecimal / 12
   return Math.pow(1 + monthlyNominalDue, 12) - 1
 }
-
-
-
-
-
 

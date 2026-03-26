@@ -1,3 +1,4 @@
+import { getCalculatorById, type CalculatorId } from '../../domain/calculators/manifest'
 import { buildCanonical } from './site'
 import type { SeoMeta } from './seo.types'
 
@@ -9,27 +10,7 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     canonical: buildCanonical('/'),
     ogType: 'website',
   },
-  mortgageAmortization: {
-    title: 'Amortizacion credito vivienda - Finanzas claras',
-    description:
-      'Calcula tu tabla de amortizacion de credito de vivienda y valida cuota teorica en sistema frances.',
-    canonical: buildCanonical('/amortizacion-credito-vivienda'),
-    ogType: 'website',
-  },
-  vehicleLoan: {
-    title: 'Amortizacion credito vehicular - Finanzas claras',
-    description:
-      'Calcula cuota, tabla de amortizacion y compara escenarios para tu credito vehicular.',
-    canonical: buildCanonical('/amortizacion-credito-vehicular'),
-    ogType: 'website',
-  },
-  payrollLoan: {
-    title: 'Amortizacion credito de libranza - Finanzas claras',
-    description:
-      'Simula tu credito de libranza y evalua cuota, plazo e intereses con abonos periodicos.',
-    canonical: buildCanonical('/amortizacion-credito-libranza'),
-    ogType: 'website',
-  },
+
   blogIndex: {
     title: 'Blog de educacion financiera - Finanzas claras',
     description:
@@ -60,4 +41,15 @@ export const seoMetaByPath: Record<string, SeoMeta> = {
     description: 'La ruta solicitada no existe en Finanzas claras.',
     canonical: buildCanonical('/404'),
   },
+}
+
+export function getCalculatorSeoMeta(calculatorId: CalculatorId): SeoMeta {
+  const calculator = getCalculatorById(calculatorId)
+
+  return {
+    title: calculator.seo.title,
+    description: calculator.seo.description,
+    canonical: buildCanonical(calculator.path),
+    ogType: calculator.seo.ogType ?? 'website',
+  }
 }

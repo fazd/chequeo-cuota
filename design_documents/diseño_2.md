@@ -45,7 +45,6 @@ Se agregara React Router.
 
 ## Rutas principales
 /
-/como-funciona
 /blog
 /blog/:slug
 /sobre

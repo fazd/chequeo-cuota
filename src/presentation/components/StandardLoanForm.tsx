@@ -1,5 +1,14 @@
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
+import {
+  MoneyInput,
+} from './MoneyInput'
+import {
+  parseMoneyInputValue,
+  parseOptionalMoneyInputValue,
+} from './moneyInput.utils'
+import { ExtraPaymentsCard, type ExtraPaymentRowDraft } from './ExtraPaymentsCard'
+import { InsuranceCard } from './InsuranceCard'
 
 interface StandardLoanFormProps {
   loanLabel: string
@@ -17,7 +26,12 @@ export interface StandardLoanFormInput {
   constantExtraPayment?: {
     amount: number
     everyNMonths: number
+    occurrences?: number
   }
+  extraordinaryExtraPayments?: Array<{
+    month: number
+    amount: number
+  }>
 }
 
 type RateType = 'effectiveAnnual' | 'nominalDue'
@@ -36,6 +50,9 @@ interface FormState {
   wantsExtraPayments: boolean
   periodicExtraAmount: string
   periodicExtraEveryMonths: string
+  periodicExtraOccurrences: string
+  wantsExtraordinaryExtraPayments: boolean
+  extraordinaryRows: ExtraPaymentRowDraft[]
 }
 
 const initialState: FormState = {
@@ -52,6 +69,9 @@ const initialState: FormState = {
   wantsExtraPayments: false,
   periodicExtraAmount: '',
   periodicExtraEveryMonths: '',
+  periodicExtraOccurrences: '',
+  wantsExtraordinaryExtraPayments: false,
+  extraordinaryRows: [],
 }
 
 export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormProps) {
@@ -117,6 +137,7 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
     if (form.wantsExtraPayments) {
       const amount = parseMoneyInputValue(form.periodicExtraAmount)
       const everyNMonths = Number(form.periodicExtraEveryMonths)
+      const occurrences = form.periodicExtraOccurrences.trim() === '' ? undefined : Number(form.periodicExtraOccurrences)
 
       if (!Number.isFinite(amount) || !Number.isFinite(everyNMonths)) {
         setError('Completa monto y frecuencia de abono periodico.')
@@ -126,9 +147,29 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
         setError('El abono periodico debe tener monto > 0 y frecuencia entera > 0.')
         return
       }
+      if (occurrences !== undefined && (!Number.isInteger(occurrences) || occurrences <= 0)) {
+        setError('Las ocurrencias deben ser un entero mayor que 0.')
+        return
+      }
 
-      constantExtraPayment = { amount, everyNMonths }
+      constantExtraPayment = { amount, everyNMonths, occurrences }
     }
+
+    const extraordinaryExtraPayments = form.wantsExtraordinaryExtraPayments
+      ? form.extraordinaryRows
+          .map((row) => ({
+            month: Number(row.month),
+            amount: parseMoneyInputValue(row.amount),
+          }))
+          .filter(
+            (item) =>
+              Number.isFinite(item.month) &&
+              Number.isFinite(item.amount) &&
+              item.month >= 1 &&
+              item.month <= termMonths &&
+              item.amount > 0,
+          )
+      : []
 
     setError(null)
     onCalculate({
@@ -140,6 +181,7 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
       monthlyLifeInsuranceRate: monthlyLifeInsuranceRatePct / 100,
       bankPaymentIncludesInsurance: insuranceEnabled,
       constantExtraPayment,
+      extraordinaryExtraPayments,
     })
   }
 
@@ -256,129 +298,53 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
       </section>
 
       {showInsuranceCard ? (
-        <section className="form-card">
-          <header className="form-card-header">
-            <span className="form-card-badge" aria-hidden>
-              {insuranceBadge}
-            </span>
-            <div>
-              <h3 className="section-title">Seguros</h3>
-              <p className="section-description">
-                Configura los seguros asociados a tu credito.
-              </p>
-            </div>
-          </header>
-
-          <div className="form-card-content">
-            <div className="choice-group choice-group-inline">
-              <label className="choice-item" htmlFor="hasFixedInsurance">
-                <input
-                  id="hasFixedInsurance"
-                  type="checkbox"
-                  checked={form.hasFixedInsurance}
-                  onChange={(event) =>
-                    updateField('hasFixedInsurance', event.target.checked)
-                  }
-                />
-                Seguro fijo
-              </label>
-              <label className="choice-item" htmlFor="hasVariableInsurance">
-                <input
-                  id="hasVariableInsurance"
-                  type="checkbox"
-                  checked={form.hasVariableInsurance}
-                  onChange={(event) =>
-                    updateField('hasVariableInsurance', event.target.checked)
-                  }
-                />
-                Seguro variable
-              </label>
-            </div>
-
-            <div className="form-grid">
-              {form.hasFixedInsurance ? (
-                <div className="field">
-                  <label htmlFor="monthlyInsurance">Valor del seguro fijo</label>
-                  <MoneyInput
-                    id="monthlyInsurance"
-                    value={form.monthlyInsurance}
-                    onChange={(value) => updateField('monthlyInsurance', value)}
-                  />
-                </div>
-              ) : null}
-              {form.hasVariableInsurance ? (
-                <div className="field">
-                  <label htmlFor="monthlyLifeInsuranceRatePct">
-                    Interes del seguro variable (%)
-                  </label>
-                  <input
-                    id="monthlyLifeInsuranceRatePct"
-                    type="number"
-                    min={0}
-                    step="any"
-                    value={form.monthlyLifeInsuranceRatePct}
-                    onChange={(event) =>
-                      updateField('monthlyLifeInsuranceRatePct', event.target.value)
-                    }
-                  />
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </section>
+        <InsuranceCard
+          badge={insuranceBadge}
+          idPrefix="standard-loan"
+          description="Configura los seguros asociados a tu credito."
+          allowVariable
+          state={{
+            hasFixedInsurance: form.hasFixedInsurance,
+            monthlyInsurance: form.monthlyInsurance,
+            hasVariableInsurance: form.hasVariableInsurance,
+            monthlyLifeInsuranceRatePct: form.monthlyLifeInsuranceRatePct,
+          }}
+          onChange={(next) =>
+            setForm((prev) => ({
+              ...prev,
+              hasFixedInsurance: next.hasFixedInsurance,
+              monthlyInsurance: next.monthlyInsurance,
+              hasVariableInsurance: next.hasVariableInsurance,
+              monthlyLifeInsuranceRatePct: next.monthlyLifeInsuranceRatePct,
+            }))
+          }
+        />
       ) : null}
 
-      <section className="form-card">
-        <header className="form-card-header">
-          <span className="form-card-badge" aria-hidden>
-            {extraPaymentsBadge}
-          </span>
-          <div>
-            <h3 className="section-title">Aportes adicionales</h3>
-            <p className="section-description">
-              Opcional: simula un abono periodico para comparar contra escenario base.
-            </p>
-          </div>
-        </header>
-
-        <div className="form-card-content">
-          <label className="choice-item" htmlFor="wantsExtraPayments">
-            <input
-              id="wantsExtraPayments"
-              type="checkbox"
-              checked={form.wantsExtraPayments}
-              onChange={(event) => updateField('wantsExtraPayments', event.target.checked)}
-            />
-            Quiero simular abonos periodicos
-          </label>
-
-          {form.wantsExtraPayments ? (
-            <div className="form-grid form-grid-three">
-              <div className="field">
-                <label htmlFor="periodicExtraAmount">Monto del abono</label>
-                <MoneyInput
-                  id="periodicExtraAmount"
-                  value={form.periodicExtraAmount}
-                  onChange={(value) => updateField('periodicExtraAmount', value)}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="periodicExtraEveryMonths">Cada cuantos meses</label>
-                <input
-                  id="periodicExtraEveryMonths"
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={form.periodicExtraEveryMonths}
-                  onChange={(event) =>
-                    updateField('periodicExtraEveryMonths', event.target.value)
-                  }
-                />
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </section>
+      <ExtraPaymentsCard
+        badge={extraPaymentsBadge}
+        description="Opcional: simula abonos periodicos y/o extraordinarios para comparar escenarios."
+        termMonths={Number(form.termMonths)}
+        state={{
+          wantsPeriodicExtraPayments: form.wantsExtraPayments,
+          periodicExtraAmount: form.periodicExtraAmount,
+          periodicExtraEveryMonths: form.periodicExtraEveryMonths,
+          periodicExtraOccurrences: form.periodicExtraOccurrences,
+          wantsExtraordinaryExtraPayments: form.wantsExtraordinaryExtraPayments,
+          extraordinaryRows: form.extraordinaryRows,
+        }}
+        onChange={(next) =>
+          setForm((prev) => ({
+            ...prev,
+            wantsExtraPayments: next.wantsPeriodicExtraPayments,
+            periodicExtraAmount: next.periodicExtraAmount,
+            periodicExtraEveryMonths: next.periodicExtraEveryMonths,
+            periodicExtraOccurrences: next.periodicExtraOccurrences,
+            wantsExtraordinaryExtraPayments: next.wantsExtraordinaryExtraPayments,
+            extraordinaryRows: next.extraordinaryRows,
+          }))
+        }
+      />
 
       {error ? <div className="field-error">{error}</div> : null}
 
@@ -389,54 +355,6 @@ export function StandardLoanForm({ loanLabel, onCalculate }: StandardLoanFormPro
       </div>
     </form>
   )
-}
-
-interface MoneyInputProps {
-  id: string
-  value: string
-  onChange: (value: string) => void
-}
-
-function MoneyInput({ id, value, onChange }: MoneyInputProps) {
-  return (
-    <div className="money-input-wrap">
-      <span className="money-prefix">$</span>
-      <input
-        id={id}
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        value={value}
-        onChange={(event) => onChange(formatMoneyInput(event.target.value))}
-      />
-    </div>
-  )
-}
-
-function formatMoneyInput(rawValue: string): string {
-  const digits = rawValue.replace(/\D/g, '')
-  if (digits === '') {
-    return ''
-  }
-
-  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-}
-
-function parseMoneyInputValue(rawValue: string): number {
-  if (rawValue.trim() === '') {
-    return NaN
-  }
-
-  const normalized = rawValue.replace(/\./g, '').replace(/\s/g, '').replace(',', '.')
-  return Number(normalized)
-}
-
-function parseOptionalMoneyInputValue(rawValue: string): number | undefined {
-  if (rawValue.trim() === '') {
-    return undefined
-  }
-
-  return parseMoneyInputValue(rawValue)
 }
 
 function toEffectiveAnnualRate(rateType: RateType, ratePct: number): number {

@@ -1,0 +1,164 @@
+[
+  {
+    "id": "hipotecario",
+    "name": "Credito hipotecario",
+    "description": "Calcula tu cuota mensual y genera la tabla de amortizacion de tu credito.",
+    "path": "/amortizacion-credito-vivienda",
+    "enabled": true,
+    "pageKind": "single-loan",
+    "routeComponent": "mortgage",
+    "iconKey": "house",
+    "nav": {
+      "visible": false,
+      "label": "Credito vivienda",
+      "order": 10
+    },
+    "homeCard": {
+      "visible": true,
+      "ctaLabel": "Ir a calculadora"
+    },
+    "seo": {
+      "title": "Amortizacion credito vivienda - Finanzas claras",
+      "description": "Calcula tu tabla de amortizacion de credito de vivienda y valida cuota teorica en sistema frances.",
+      "ogType": "website"
+    },
+    "blogSuggestions": [
+      "sistema-frances",
+      "ea-vs-nominal-vencida",
+      "reducir-plazo-vs-reducir-cuota"
+    ]
+  },
+  {
+    "id": "vehicular",
+    "name": "Credito vehicular",
+    "description": "Calcula tu cuota y la proyeccion de tu credito vehicular.",
+    "path": "/amortizacion-credito-vehicular",
+    "enabled": true,
+    "pageKind": "single-loan",
+    "routeComponent": "vehicle",
+    "iconKey": "car",
+    "nav": {
+      "visible": false,
+      "label": "Credito vehicular",
+      "order": 20
+    },
+    "homeCard": {
+      "visible": true,
+      "ctaLabel": "Ir a calculadora"
+    },
+    "seo": {
+      "title": "Amortizacion credito vehicular - Finanzas claras",
+      "description": "Calcula cuota, tabla de amortizacion y compara escenarios para tu credito vehicular.",
+      "ogType": "website"
+    },
+    "blogSuggestions": [
+      "credito-vehicular-como-funciona",
+      "credito-vehicular-abonos-estrategia",
+      "ea-vs-nominal-vencida"
+    ]
+  },
+  {
+    "id": "libranza",
+    "name": "Credito de libranza",
+    "description": "Calcula la cuota de tu libranza y genera su tabla de amortizacion.",
+    "path": "/amortizacion-credito-libranza",
+    "enabled": true,
+    "pageKind": "single-loan",
+    "routeComponent": "payroll",
+    "iconKey": "percent",
+    "nav": {
+      "visible": false,
+      "label": "Credito libranza",
+      "order": 30
+    },
+    "homeCard": {
+      "visible": true,
+      "ctaLabel": "Ir a calculadora"
+    },
+    "seo": {
+      "title": "Amortizacion credito de libranza - Finanzas claras",
+      "description": "Simula tu credito de libranza y evalua cuota, plazo e intereses con abonos periodicos.",
+      "ogType": "website"
+    },
+    "blogSuggestions": [
+      "credito-libranza-claves-cuota-tasa-plazo",
+      "credito-libranza-reducir-plazo-o-cuota",
+      "ea-vs-nominal-vencida"
+    ]
+  },
+  {
+    "id": "tarjeta-credito",
+    "name": "Tarjeta de credito",
+    "description": "Simula tu deuda de tarjetas de credito, aportes y estrategia de pago.",
+    "path": "/calculadora-tarjeta-credito",
+    "enabled": true,
+    "pageKind": "credit-card-portfolio",
+    "routeComponent": "creditCard",
+    "iconKey": "credit-card",
+    "nav": {
+      "visible": true,
+      "label": "Tarjeta de credito",
+      "order": 40
+    },
+    "homeCard": {
+      "visible": true,
+      "ctaLabel": "Ir a calculadora"
+    },
+    "seo": {
+      "title": "Calculadora tarjeta de credito - Finanzas claras",
+      "description": "Simula deuda de tarjetas, compara estrategias de pago y revisa tu consolidado en una sola vista.",
+      "ogType": "website"
+    },
+    "blogSuggestions": []
+  },
+  {
+    "id": "cdt",
+    "name": "CDT",
+    "description": "Calculadora activa para cuota y proyeccion en sistema frances.",
+    "path": "/calculadora-cdt",
+    "enabled": false,
+    "pageKind": "investment",
+    "routeComponent": null,
+    "iconKey": "calculator",
+    "nav": {
+      "visible": false,
+      "label": "CDT",
+      "order": 50
+    },
+    "homeCard": {
+      "visible": true,
+      "ctaLabel": "Proximamente"
+    },
+    "seo": {
+      "title": "CDT - Finanzas claras",
+      "description": "Modulo de CDT en preparacion.",
+      "ogType": "website"
+    },
+    "blogSuggestions": []
+  },
+  {
+    "id": "alto-rendimiento",
+    "name": "Cuentas de alto rendimiento",
+    "description": "Calculadora activa para cuota y proyeccion en sistema frances.",
+    "path": "/calculadora-alto-rendimiento",
+    "enabled": false,
+    "pageKind": "savings",
+    "routeComponent": null,
+    "iconKey": "calculator",
+    "nav": {
+      "visible": false,
+      "label": "Alto rendimiento",
+      "order": 60
+    },
+    "homeCard": {
+      "visible": true,
+      "ctaLabel": "Proximamente"
+    },
+    "seo": {
+      "title": "Cuentas de alto rendimiento - Finanzas claras",
+      "description": "Modulo de cuentas de alto rendimiento en preparacion.",
+      "ogType": "website"
+    },
+    "blogSuggestions": []
+  }
+]

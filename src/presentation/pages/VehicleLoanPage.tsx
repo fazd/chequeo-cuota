@@ -1,8 +1,11 @@
 import { useMemo, useState, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import { getAllBlogPosts } from '../../application/blog/blogContent'
-import { buildVehicleLoanSummary } from '../../application/vehicular/vehicleLoanSummary'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCar } from '@fortawesome/free-solid-svg-icons'
+import { getSuggestedBlogPosts } from '../../application/blog/blogContent'
 import { calculateVehicleProjection } from '../../application/vehicular/calculateVehicleProjection'
+import { buildVehicleLoanSummary } from '../../application/vehicular/vehicleLoanSummary'
+import { getCalculatorById } from '../../domain/calculators/manifest'
 import type { LoanInput } from '../../domain/loan.types'
 import type { VehicleLoanProjection } from '../../domain/vehicular/loan.types'
 import { formatCop } from '../../utils/currency'
@@ -11,15 +14,16 @@ import { ExportCSVButton } from '../components/ExportCSVButton'
 import { LoanForm } from '../components/LoanForm'
 import { StandardSummaryCards } from '../components/StandardSummaryCards'
 import { SeoHead } from '../seo/SeoHead'
-import { seoMetaByPath } from '../seo/meta'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCar } from '@fortawesome/free-solid-svg-icons'
+import { getCalculatorSeoMeta } from '../seo/meta'
 
 const Charts = lazy(() => import('../components/Charts').then((m) => ({ default: m.Charts })))
 
+const suggestedPosts = getSuggestedBlogPosts(
+  getCalculatorById('vehicular').blogSuggestions,
+)
+
 export function VehicleLoanPage() {
   const [projection, setProjection] = useState<VehicleLoanProjection | null>(null)
-  const suggestedPosts = useMemo(() => getSuggestedVehiclePosts(), [])
 
   function handleCalculate(input: LoanInput) {
     setProjection(
@@ -48,7 +52,7 @@ export function VehicleLoanPage() {
 
   return (
     <>
-      <SeoHead meta={seoMetaByPath.vehicleLoan} />
+      <SeoHead meta={getCalculatorSeoMeta('vehicular')} />
       <section className="app-shell app-surface">
         <div className="hero hero-landing">
           <div className="hero-icon" aria-hidden>
@@ -58,8 +62,8 @@ export function VehicleLoanPage() {
         </div>
 
         <p className="subtitle">
-          Simula tu credito vehicular en sistema frances y evalua como cambian
-          cuota, plazo e intereses con aportes periodicos.
+          Simula tu credito vehicular en sistema frances y evalua como cambian cuota,
+          plazo e intereses con aportes periodicos.
         </p>
 
         <section className="landing-block">
@@ -72,8 +76,8 @@ export function VehicleLoanPage() {
             {showSavingsSummary ? (
               <p className="savings-summary">
                 Gracias a los aportes adicionales, ahorras{' '}
-                {formatCop(summary.interestSavingsFromPrepayments)} en intereses y
-                reduces el plazo en {formatMonths(summary.monthsReduced)}.
+                {formatCop(summary.interestSavingsFromPrepayments)} en intereses y reduces
+                el plazo en {formatMonths(summary.monthsReduced)}.
               </p>
             ) : null}
 
@@ -91,7 +95,8 @@ export function VehicleLoanPage() {
         <section className="landing-block">
           <h2 className="landing-title">Para profundizar</h2>
           <p className="page-intro">
-            Revisa estos articulos para entender mejor credito vehicular y tipos de tasa.
+            Revisa estos articulos para entender mejor credito vehicular y tipos de
+            tasa.
           </p>
           <div className="learn-suggest-grid">
             {suggestedPosts.map((post) => (
@@ -114,25 +119,6 @@ export function VehicleLoanPage() {
   )
 }
 
-function getSuggestedVehiclePosts() {
-  const allPosts = getAllBlogPosts()
-  const prioritySlugs = [
-    'credito-vehicular-como-funciona',
-    'credito-vehicular-abonos-estrategia',
-    'ea-vs-nominal-vencida',
-  ]
-
-  const priorityPosts = prioritySlugs
-    .map((slug) => allPosts.find((post) => post.slug === slug))
-    .filter((post): post is NonNullable<typeof post> => post != null)
-
-  const remainingPosts = allPosts.filter(
-    (post) => !priorityPosts.some((selected) => selected.slug === post.slug),
-  )
-
-  return [...priorityPosts, ...remainingPosts].slice(0, 3)
-}
-
 function formatMonths(months: number): string {
   const years = Math.floor(months / 12)
   const remainingMonths = months % 12
@@ -141,5 +127,5 @@ function formatMonths(months: number): string {
     return `${months} meses`
   }
 
-  return `${years} años y ${remainingMonths} meses`
+  return `${years} anos y ${remainingMonths} meses`
 }
