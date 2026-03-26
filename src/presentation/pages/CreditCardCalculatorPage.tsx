@@ -217,7 +217,7 @@ export function CreditCardCalculatorPage() {
           Gestiona hasta 5 tarjetas en pestañas. El consolidado se habilita cuando agregas 2 o mas tarjetas.
         </p>
 
-        <section className="landing-block">
+        <div className="tc-tabs-wrapper">
           <div className="tc-tabs">
             {cards.map((card) => (
               <div
@@ -291,11 +291,13 @@ export function CreditCardCalculatorPage() {
                 Consolidado
               </button>
             ) : null}
-            <button type="button" className="btn-secondary tc-tab-add" onClick={addCard} disabled={cards.length >= MAX_CARDS}>
-              + Agregar
+            <button type="button" className="tc-tab-add" onClick={addCard} disabled={cards.length >= MAX_CARDS}>
+              +
             </button>
           </div>
-          {nameWarning ? <div className="field-warning">{nameWarning}</div> : null}
+
+          <section className="landing-block tc-content-block">
+            {nameWarning ? <div className="field-warning">{nameWarning}</div> : null}
 
           {!isConsolidated && activeCard ? (
             <div className="tc-tab-panel">
@@ -585,7 +587,8 @@ export function CreditCardCalculatorPage() {
               ) : null}
             </div>
           ) : null}
-        </section>
+          </section>
+        </div>
       </section>
       {pendingDeleteCardId ? (
         <DeleteCardModal

@@ -886,6 +886,18 @@ tbody tr:hover {
   scroll-margin-top: 5.3rem;
 }
 
+.landing-block.tc-content-block {
+  margin-top: 0;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+}
+
+.tc-tabs-wrapper .landing-block.tc-content-block {
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .landing-title {
   margin: 0;
   color: var(--color-primary);
@@ -1420,12 +1432,20 @@ button.tag-chip:hover {
   text-decoration: none;
 }
 
+.tc-tabs-wrapper {
+  margin-top: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
 .tc-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
   margin-bottom: 0;
-  padding: 0 0.5rem 0.2rem;
+  padding: 0 1rem 0;
   border-bottom: 1px solid var(--color-border);
   background: rgba(248, 250, 252, 0.95);
 }
@@ -1434,8 +1454,9 @@ button.tag-chip:hover {
   border: 1px solid var(--color-border);
   border-bottom: 1px solid transparent;
   border-radius: 12px 12px 0 0;
-  background: var(--color-surface);
+  background: #f0f1f3;
   color: var(--color-text-primary);
+  border-bottom-color: transparent;
   font-weight: 600;
   min-height: 38px;
   padding: 0 0.85rem;
@@ -1457,15 +1478,6 @@ button.tag-chip:hover {
 .tc-tab .tc-tab-name {
   display: inline-block;
   min-width: 0;
-}
-
-.tc-tab.active {
-  background: #ffffff;
-  border-color: var(--color-border);
-  border-bottom-color: #ffffff;
-  color: var(--color-primary);
-  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.18);
-  z-index: 3;
 }
 
 .tc-tab-name {
@@ -1523,13 +1535,41 @@ button.tag-chip:hover {
 }
 
 .tc-tab.active {
-  background: var(--color-primary-light);
-  border-color: var(--color-primary-light);
-  color: #fff;
+  background: #ffffff;
+  border-bottom-color: transparent;
+  z-index: 2;
 }
 
 .tc-tab-add {
-  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  border-bottom: 1px solid transparent;
+  border-radius: 12px 12px 0 0;
+  background: #f0f1f3;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  min-height: 38px;
+  padding: 0 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-bottom: -1px;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.tc-tab-add:hover,
+.tc-tab-add:focus-visible {
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.12);
+  transform: translateY(-1px);
+}
+
+.tc-tab-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .tc-tab-panel {
