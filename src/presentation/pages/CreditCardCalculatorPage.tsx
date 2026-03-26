@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCreditCard } from '@fortawesome/free-solid-svg-icons'
+import { faCreditCard, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { trackCalculoRealizado } from '../../application/analytics/events'
 import {
   calculateCreditCardPortfolio,
@@ -72,6 +72,8 @@ export function CreditCardCalculatorPage() {
   const [cardErrors, setCardErrors] = useState<Record<string, string>>({})
   const [nameWarning, setNameWarning] = useState<string | null>(null)
   const [pendingDeleteCardId, setPendingDeleteCardId] = useState<string | null>(null)
+  const [editingCardId, setEditingCardId] = useState<string | null>(null)
+  const [editingCardOriginalName, setEditingCardOriginalName] = useState<string>('')
 
   const [mode, setMode] = useState<ConsolidatedExtraMode>('manual')
   const [strategy, setStrategy] = useState<PortfolioStrategy>('snowball')
@@ -126,19 +128,35 @@ export function CreditCardCalculatorPage() {
     }
   }
 
-  function updateCardName(id: string, nextName: string) {
-    const normalizedNextName = normalizeCardName(nextName)
-    const duplicateExists = cards.some(
-      (card) => card.id !== id && normalizeCardName(card.name) === normalizedNextName,
+  function startEditingCardName(cardId: string) {
+    const card = cards.find((c) => c.id === cardId)
+    setEditingCardId(cardId)
+    setEditingCardOriginalName(card?.name ?? '')
+  }
+
+  function stopEditingCardName() {
+    setEditingCardId(null)
+    setEditingCardOriginalName('')
+  }
+
+  function handleCardNameEdit(cardId: string, newName: string) {
+    const originalName = editingCardOriginalName || cards.find((c) => c.id === cardId)?.name || ''
+
+    const normalized = normalizeCardName(newName)
+    const isDuplicate = cards.some(
+      (c) => c.id !== cardId && normalizeCardName(c.name) === normalized,
     )
 
-    if (duplicateExists) {
-      setNameWarning('El nombre ya existe. Cada tarjeta debe tener un nombre unico.')
-      return
+    if (isDuplicate) {
+      setNameWarning('Cada tarjeta debe tener un nombre unico')
+      updateCard(cardId, { name: originalName })
+    } else {
+      setNameWarning(null)
+      updateCard(cardId, { name: newName.trim() === '' ? originalName : newName })
     }
 
-    setNameWarning(null)
-    updateCard(id, { name: nextName })
+    setEditingCardId(null)
+    setEditingCardOriginalName('')
   }
 
   function calculateCard(card: CardDraft) {
@@ -204,27 +222,52 @@ export function CreditCardCalculatorPage() {
             {cards.map((card) => (
               <div
                 key={card.id}
-                className={`tc-tab tc-tab-editable ${activeTab === card.id ? 'active' : ''}`}
+                className={`tc-tab ${activeTab === card.id ? 'active' : ''}`}
                 onClick={() => setActiveTab(card.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(event) => {
+                  if (editingCardId === card.id) return
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault()
                     setActiveTab(card.id)
                   }
                 }}
               >
-                <input
-                  type="text"
-                  className="tc-tab-input"
-                  value={card.name}
-                  onFocus={() => setActiveTab(card.id)}
-                  onClick={(event) => event.stopPropagation()}
-                  onChange={(event) => updateCardName(card.id, event.target.value)}
-                  aria-label={`Nombre ${card.id}`}
-                />
-                {cards.length > 1 ? (
+                {editingCardId === card.id ? (
+                  <input
+                    type="text"
+                    className="tc-tab-input"
+                    value={card.name}
+                    onChange={(event) => updateCard(card.id, { name: event.target.value.slice(0, 25) })}
+                    onBlur={(event) => handleCardNameEdit(card.id, event.currentTarget.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        handleCardNameEdit(card.id, event.currentTarget.value)
+                      } else if (event.key === 'Escape') {
+                        stopEditingCardName()
+                      }
+                    }}
+                    autoFocus
+                    maxLength={25}
+                  />
+                ) : (
+                  <span className="tc-tab-name">{card.name}</span>
+                )}
+                {activeTab === card.id && editingCardId !== card.id && (
+                  <button
+                    type="button"
+                    className="tc-tab-edit"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      startEditingCardName(card.id)
+                    }}
+                    aria-label={`Editar nombre de ${card.name}`}
+                  >
+                    <FontAwesomeIcon icon={faPencil} />
+                  </button>
+                )}
+                {cards.length > 1 && (
                   <button
                     type="button"
                     className="tc-tab-remove"
@@ -234,9 +277,9 @@ export function CreditCardCalculatorPage() {
                     }}
                     aria-label={`Eliminar ${card.name}`}
                   >
-                    x
+                    <FontAwesomeIcon icon={faTrash} />
                   </button>
-                ) : null}
+                )}
               </div>
             ))}
             {hasMultipleCards ? (
@@ -701,6 +744,9 @@ function buildCardSavingsSummary(projection: CreditCardProjection): string | nul
   }
 
   if (messages.length === 0) {
+    if (projection.totalExtraPaid > EPSILON) {
+      return 'Gracias a los aportes adicionales en esta tarjeta, tu deuda se reducira y pagaras menos intereses.'
+    }
     return null
   }
 
@@ -728,7 +774,7 @@ function toMoneyNumber(rawValue: string): number {
 }
 
 function normalizeCardName(name: string): string {
-  return name.trim().replace(/\s+/g, ' ').toLowerCase()
+  return name.toLowerCase().trim()
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {

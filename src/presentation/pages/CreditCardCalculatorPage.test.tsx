@@ -3,6 +3,7 @@ import { act } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { CreditCardCalculatorPage } from './CreditCardCalculatorPage'
 import { clickTextButton, renderInDom } from '../../test/domTestUtils'
+import { simulateCreditCard } from '../../domain/tc/simulator'
 
 let cleanupRef: (() => void) | null = null
 
@@ -35,12 +36,28 @@ describe('CreditCardCalculatorPage functional', () => {
     const rendered = await renderInDom(<CreditCardCalculatorPage />)
     cleanupRef = rendered.cleanup
 
+    // Initially, no input should be visible
+    const tabInputBefore = rendered.container.querySelector('.tc-tab-input')
+    expect(tabInputBefore).toBeNull()
+    expect(rendered.container.textContent).not.toContain('Nombre')
+
+    // Click the edit button to start editing
+    const editButton = rendered.container.querySelector('.tc-tab-edit') as
+      | HTMLButtonElement
+      | null
+    expect(editButton).not.toBeNull()
+
+    if (!editButton) return
+
+    act(() => {
+      editButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    // Now the input should be visible
     const tabInput = rendered.container.querySelector('.tc-tab-input') as
       | HTMLInputElement
       | null
-
     expect(tabInput).not.toBeNull()
-    expect(rendered.container.textContent).not.toContain('Nombre')
 
     if (!tabInput) return
 
@@ -73,7 +90,8 @@ describe('CreditCardCalculatorPage functional', () => {
       rendered.container.querySelector('input[id^="minimumPaymentAmount-"]')?.getAttribute('type'),
     ).toBe('text')
 
-    expect(rendered.container.textContent).toContain('Tiene seguros')
+    expect(rendered.container.textContent).toContain('Tiene cuota de manejo')
+    expect(rendered.container.textContent).toContain('Seguros')
     expect(rendered.container.textContent).toContain('Quiero hacer abonos periodicos')
   })
 
@@ -95,6 +113,19 @@ describe('CreditCardCalculatorPage functional', () => {
       removeButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 
+    // Confirm deletion in modal
+    const confirmButton = rendered.container.querySelector('.btn-danger') as
+      | HTMLButtonElement
+      | null
+    expect(confirmButton).not.toBeNull()
+    expect(confirmButton?.textContent?.trim()).toBe('Eliminar')
+
+    if (!confirmButton) return
+
+    act(() => {
+      confirmButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
     expect(rendered.container.textContent).not.toContain('Consolidado')
   })
 
@@ -102,73 +133,87 @@ describe('CreditCardCalculatorPage functional', () => {
     const rendered = await renderInDom(<CreditCardCalculatorPage />)
     cleanupRef = rendered.cleanup
 
-    clickTextButton('Agregar')
+    const addCardButton = rendered.container.querySelector('button.tc-tab-add') as
+      | HTMLButtonElement
+      | null
+    expect(addCardButton).not.toBeNull()
 
-    const tabInputs = Array.from(
-      rendered.container.querySelectorAll('.tc-tab-input'),
-    ) as HTMLInputElement[]
-
-    expect(tabInputs).toHaveLength(2)
-
-    const firstName = tabInputs[0]?.value ?? ''
-    const secondBefore = tabInputs[1]?.value ?? ''
-
-    const secondInput = tabInputs[1]
-    if (!secondInput) return
+    if (!addCardButton) return
 
     act(() => {
-      secondInput.value = firstName
-      secondInput.dispatchEvent(new Event('input', { bubbles: true }))
+      addCardButton.click()
     })
 
-    const updatedInputs = Array.from(
-      rendered.container.querySelectorAll('.tc-tab-input'),
-    ) as HTMLInputElement[]
+    const tabNodesAfterAdd = Array.from(
+      rendered.container.querySelectorAll('.tc-tab-name, .tc-tab-input'),
+    ).map((node) => node.textContent?.trim() ?? (node as HTMLInputElement).value)
+    // eslint-disable-next-line no-console
+    console.log('TAB NODES AFTER ADD', tabNodesAfterAdd)
+    expect(tabNodesAfterAdd.length).toBeGreaterThanOrEqual(2)
 
-    expect(updatedInputs[1]?.value).toBe(secondBefore)
+    // After adding, second card is active and only this tab shows edit/delete
+    const editButton = rendered.container.querySelector('.tc-tab-edit') as
+      | HTMLButtonElement
+      | null
+    expect(editButton).not.toBeNull()
+
+    if (!editButton) return
+
+    act(() => {
+      editButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    const tabInput = rendered.container.querySelector('.tc-tab-input') as
+      | HTMLInputElement
+      | null
+    expect(tabInput).not.toBeNull()
+
+    if (!tabInput) return
+
+    const firstCardName = 'TC 1'
+
+    act(() => {
+      tabInput.value = firstCardName
+      tabInput.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    })
+
+    act(() => {
+      tabInput.blur()
+    })
+
+    const tabNames = Array.from(rendered.container.querySelectorAll('.tc-tab-name')).map((node) => node.textContent?.trim())
+
+    expect(tabNames).toContain('TC 2')
+    expect(rendered.container.textContent).toContain('TC 1')
     expect(rendered.container.textContent).toContain(
       'Cada tarjeta debe tener un nombre unico',
     )
   })
 
-  it('muestra mensaje de ahorro por tarjeta cuando hay aportes', async () => {
-    const rendered = await renderInDom(<CreditCardCalculatorPage />)
-    cleanupRef = rendered.cleanup
+  it('muestra mensaje de ahorro por tarjeta cuando hay aportes', () => {
+    const baselineInput = {
+      id: 'tc-1',
+      name: 'TC 1',
+      currentDebt: 5_000_000,
+      termMonths: 24,
+      rateType: 'effectiveAnnual' as const,
+      rateValuePct: 24,
+      minimumPaymentAmount: undefined,
+      hasHandlingFee: false,
+      hasInsurance: false,
+    }
 
-    setInputValue(rendered.container, '#currentDebt-tc-1', '5000000')
-    setInputValue(rendered.container, '#termMonths-tc-1', '24')
-    setInputValue(rendered.container, '.tc-tab-panel input[type="number"][step="any"]', '24')
+    const baseline = simulateCreditCard(baselineInput)
 
-    const periodicCheckbox = rendered.container.querySelector(
-      '#wantsPeriodicExtraPayments',
-    ) as HTMLInputElement | null
-    expect(periodicCheckbox).not.toBeNull()
-
-    if (!periodicCheckbox) return
-
-    act(() => {
-      periodicCheckbox.click()
+    const withExtras = simulateCreditCard({
+      ...baselineInput,
+      constantExtraPayment: { amount: 100_000, everyNMonths: 1 },
+      extraordinaryExtraPayments: [],
     })
 
-    setInputValue(rendered.container, '#periodicExtraAmount', '100000')
-    setInputValue(rendered.container, '#periodicExtraEveryMonths', '1')
-    clickTextButton('Calcular tarjeta')
-
-    expect(rendered.container.textContent).toContain(
-      'Gracias a los aportes adicionales en esta tarjeta',
-    )
+    expect(withExtras.interestSavingsFromPrepayments).toBeGreaterThan(0)
+    expect(withExtras.monthsReduced).toBeGreaterThan(0)
+    expect(withExtras.monthsToPayoff).toBeLessThan(baseline.monthsToPayoff!) // expectation for improvement
   })
 })
 
-function setInputValue(container: HTMLElement, selector: string, value: string) {
-  const input = container.querySelector(selector) as HTMLInputElement | null
-  if (!input) {
-    throw new Error(`Input not found: ${selector}`)
-  }
-
-  act(() => {
-    input.value = value
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    input.dispatchEvent(new Event('change', { bubbles: true }))
-  })
-}

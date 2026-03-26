@@ -1423,26 +1423,84 @@ button.tag-chip:hover {
 .tc-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-bottom: 1rem;
+  gap: 0.25rem;
+  margin-bottom: 0;
+  padding: 0 0.5rem 0.2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(248, 250, 252, 0.95);
 }
 
 .tc-tab {
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-bottom: 1px solid transparent;
+  border-radius: 12px 12px 0 0;
   background: var(--color-surface);
   color: var(--color-text-primary);
   font-weight: 600;
   min-height: 38px;
   padding: 0 0.85rem;
   cursor: pointer;
-}
-
-.tc-tab-editable {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0 0.6rem;
+  margin-bottom: -1px;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tc-tab:hover,
+.tc-tab:focus-visible {
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.12);
+  transform: translateY(-1px);
+}
+
+.tc-tab .tc-tab-name {
+  display: inline-block;
+  min-width: 0;
+}
+
+.tc-tab.active {
+  background: #ffffff;
+  border-color: var(--color-border);
+  border-bottom-color: #ffffff;
+  color: var(--color-primary);
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.18);
+  z-index: 3;
+}
+
+.tc-tab-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tc-tab-edit,
+.tc-tab-remove {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.tc-tab-edit:hover,
+.tc-tab-edit:focus-visible,
+.tc-tab-remove:hover,
+.tc-tab-remove:focus-visible {
+  opacity: 1;
+  background: rgba(15, 23, 42, 0.12);
 }
 
 .tc-tab-input {
@@ -1456,32 +1514,12 @@ button.tag-chip:hover {
   max-width: 140px;
   outline: none;
   padding: 0;
+  flex: 1;
 }
 
 .tc-tab-input::placeholder {
   color: inherit;
   opacity: 0.7;
-}
-
-.tc-tab-remove {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 0.95rem;
-  line-height: 1;
-  padding: 0;
-}
-
-.tc-tab-remove:hover,
-.tc-tab-remove:focus-visible {
-  background: rgba(15, 23, 42, 0.12);
 }
 
 .tc-tab.active {

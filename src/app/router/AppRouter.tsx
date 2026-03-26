@@ -27,11 +27,6 @@ const CreditCardCalculatorPage = lazy(() =>
     default: m.CreditCardCalculatorPage,
   })),
 )
-const HowItWorksPage = lazy(() =>
-  import('../../presentation/pages/HowItWorksPage').then((m) => ({
-    default: m.HowItWorksPage,
-  })),
-)
 const BlogIndexPage = lazy(() => import('../../presentation/pages/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })))
 const BlogPostPage = lazy(() => import('../../presentation/pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage })))
 const AboutPage = lazy(() => import('../../presentation/pages/AboutPage').then((m) => ({ default: m.AboutPage })))

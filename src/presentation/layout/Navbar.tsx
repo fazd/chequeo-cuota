@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import {
   getNavbarCalculators,
-  getPrimaryCalculator,
 } from '../../domain/calculators/manifest'
 import logo from '../../assets/logo.png'
 
@@ -23,7 +22,6 @@ const calculatorNavItems: NavItem[] = getNavbarCalculators().map((calculator) =>
 }))
 
 const navItems: NavItem[] = [...staticNavItems, ...calculatorNavItems]
-const primaryCalculatorPath = getPrimaryCalculator()?.path ?? '/'
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
